@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
-import Script from "next/script";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -102,35 +101,36 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <Script id="google-consent-mode" strategy="beforeInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            try {
-              var consent = localStorage.getItem('infoedu_cookie_consent');
-              var parsed = consent ? JSON.parse(consent) : null;
-              var adConsent = parsed && parsed.advertising ? 'granted' : 'denied';
-              gtag('consent', 'default', {
-                'ad_storage': adConsent,
-                'ad_user_data': adConsent,
-                'ad_personalization': adConsent,
-                'analytics_storage': adConsent
-              });
-            } catch(e) {
-              gtag('consent', 'default', {
-                'ad_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'analytics_storage': 'denied'
-              });
-            }
-          `}
-        </Script>
-        <Script
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              try {
+                var consent = localStorage.getItem('infoedu_cookie_consent');
+                var parsed = consent ? JSON.parse(consent) : null;
+                var adConsent = parsed && parsed.advertising ? 'granted' : 'denied';
+                gtag('consent', 'default', {
+                  'ad_storage': adConsent,
+                  'ad_user_data': adConsent,
+                  'ad_personalization': adConsent,
+                  'analytics_storage': adConsent
+                });
+              } catch(e) {
+                gtag('consent', 'default', {
+                  'ad_storage': 'denied',
+                  'ad_user_data': 'denied',
+                  'ad_personalization': 'denied',
+                  'analytics_storage': 'denied'
+                });
+              }
+            `,
+          }}
+        />
+        <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2399050855679303"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
       </head>
       <body className={`${inter.className} bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50 dark:from-[#060814] dark:via-[#060814] dark:to-[#060814] text-slate-900 dark:text-slate-100 flex flex-col min-h-screen transition-colors relative overflow-x-hidden`}>
