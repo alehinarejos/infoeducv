@@ -152,6 +152,25 @@ export interface Translations {
     by: string;
     mitLicense: string;
     disclaimer: string;
+    legalTitle: string;
+    legalNotice: string;
+    privacyPolicy: string;
+    cookiePolicy: string;
+    cookieSettings: string;
+  };
+  cookiesBanner: {
+    title: string;
+    description: string;
+    acceptAll: string;
+    rejectNonEssential: string;
+    customize: string;
+    savePreferences: string;
+    technicalTitle: string;
+    technicalDesc: string;
+    advertisingTitle: string;
+    advertisingDesc: string;
+    moreInfo: string;
+    close: string;
   };
 }
 
@@ -321,7 +340,26 @@ export const translations: Record<Language, Translations> = {
       createdWith: "InfoEdu CV. Creado con",
       by: "por",
       mitLicense: "Licencia MIT.",
-      disclaimer: "Este portal no tiene vinculación oficial con la Generalitat Valenciana. Los datos expuestos provienen de portales de datos abiertos de la GVA."
+      disclaimer: "Este portal no tiene vinculación oficial con la Generalitat Valenciana. Los datos expuestos provienen de portales de datos abiertos de la GVA.",
+      legalTitle: "Legalidad y Privacidad",
+      legalNotice: "Aviso Legal",
+      privacyPolicy: "Política de Privacidad",
+      cookiePolicy: "Política de Cookies",
+      cookieSettings: "Configuración de Cookies"
+    },
+    cookiesBanner: {
+      title: "Configuración de Cookies y Privacidad",
+      description: "En InfoEdu CV utilizamos cookies propias (técnicas para recordar tu idioma y tema) y de terceros (Google AdSense) para financiar el servicio y mostrar anuncios. Puedes aceptar todas las cookies, rechazarlas o configurar tus preferencias.",
+      acceptAll: "Aceptar todas",
+      rejectNonEssential: "Rechazar no esenciales",
+      customize: "Personalizar",
+      savePreferences: "Guardar preferencias",
+      technicalTitle: "Cookies Técnicas y Funcionales",
+      technicalDesc: "Imprescindibles para el correcto funcionamiento del sitio (recordar tu preferencia de idioma, tema claro/oscuro y estado de consentimiento). Siempre activas.",
+      advertisingTitle: "Cookies Publicitarias (Google AdSense)",
+      advertisingDesc: "Permiten mostrar anuncios publicitarios para financiar los costes de mantenimiento del buscador. Si las desactivas, se mostrarán anuncios genéricos no personalizados.",
+      moreInfo: "Más información en nuestra",
+      close: "Cerrar"
     }
   },
   va: {
@@ -489,7 +527,26 @@ export const translations: Record<Language, Translations> = {
       createdWith: "InfoEdu CV. Creat amb",
       by: "per",
       mitLicense: "Llicència MIT.",
-      disclaimer: "Este portal no té vinculació oficial amb la Generalitat Valenciana. Les dades exposades provenen de portals de dades obertes de la GVA."
+      disclaimer: "Este portal no té vinculació oficial amb la Generalitat Valenciana. Les dades exposades provenen de portals de dades obertes de la GVA.",
+      legalTitle: "Legalitat i Privacitat",
+      legalNotice: "Avís Legal",
+      privacyPolicy: "Política de Privacitat",
+      cookiePolicy: "Política de Cookies",
+      cookieSettings: "Configuració de Cookies"
+    },
+    cookiesBanner: {
+      title: "Configuració de Cookies i Privacitat",
+      description: "A InfoEdu CV utilitzem cookies pròpies (tècniques per a recordar el teu idioma i tema) i de tercers (Google AdSense) per a finançar el servici i mostrar anuncis. Pots acceptar totes les cookies, rebutjar-les o configurar les teues preferències.",
+      acceptAll: "Acceptar totes",
+      rejectNonEssential: "Rebutjar no essencials",
+      customize: "Personalitzar",
+      savePreferences: "Guardar preferències",
+      technicalTitle: "Cookies Tècniques i Funcionals",
+      technicalDesc: "Imprescindibles per al funcionament correcte del lloc web (recordar la teua preferència d'idioma, tema clar/fosc i estat de consentiment). Sempre actives.",
+      advertisingTitle: "Cookies Publicitàries (Google AdSense)",
+      advertisingDesc: "Permeten mostrar anuncis publicitaris per a finançar els costos de manteniment del cercador. Si les desactives, es mostraran anuncis genèrics no personalitzats.",
+      moreInfo: "Més informació a la nostra",
+      close: "Tancar"
     }
   },
   en: {
@@ -657,7 +714,26 @@ export const translations: Record<Language, Translations> = {
       createdWith: "InfoEdu CV. Built with",
       by: "by",
       mitLicense: "MIT License.",
-      disclaimer: "This portal is not officially affiliated with the Generalitat Valenciana. All data is sourced from GVA public open data portals."
+      disclaimer: "This portal is not officially affiliated with the Generalitat Valenciana. All data is sourced from GVA public open data portals.",
+      legalTitle: "Legal & Privacy",
+      legalNotice: "Legal Notice",
+      privacyPolicy: "Privacy Policy",
+      cookiePolicy: "Cookie Policy",
+      cookieSettings: "Cookie Settings"
+    },
+    cookiesBanner: {
+      title: "Cookie & Privacy Settings",
+      description: "At InfoEdu CV we use first-party cookies (technical, to remember your language and theme) and third-party cookies (Google AdSense) to support the service and display ads. You can accept all, reject non-essential cookies, or customize your preferences.",
+      acceptAll: "Accept All",
+      rejectNonEssential: "Reject Non-Essential",
+      customize: "Customize",
+      savePreferences: "Save Preferences",
+      technicalTitle: "Technical & Functional Cookies",
+      technicalDesc: "Essential for the website to function properly (language, dark/light theme, and consent state). Always active.",
+      advertisingTitle: "Advertising Cookies (Google AdSense)",
+      advertisingDesc: "Allows displaying advertisements to support the free hosting and maintenance of this search tool. If disabled, non-personalized generic ads will be served.",
+      moreInfo: "Learn more in our",
+      close: "Close"
     }
   }
 };

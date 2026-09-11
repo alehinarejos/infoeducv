@@ -38,7 +38,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           {/* Column 1: InfoEdu CV Description (Propósito) */}
-          <div className="md:col-span-5 flex flex-col space-y-4">
+          <div className="md:col-span-4 flex flex-col space-y-4">
             <Link
               href="/"
               onClick={scrollToTop}
@@ -59,7 +59,7 @@ export default function Footer() {
           </div>
 
           {/* Column 2: Open Source and GitHub */}
-          <div className="md:col-span-4 flex flex-col space-y-4">
+          <div className="md:col-span-3 flex flex-col space-y-4">
             <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-wider uppercase flex items-center gap-2">
               <Code className="w-4 h-4 text-primary-600 dark:text-primary-400" />
               {t.footer.openSourceTitle}
@@ -81,8 +81,8 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Column 3: Quick Links & Attribution */}
-          <div className="md:col-span-3 flex flex-col space-y-4">
+          {/* Column 3: Quick Links */}
+          <div className="md:col-span-2 flex flex-col space-y-4">
             <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-wider uppercase">
               {t.footer.usefulLinks}
             </h3>
@@ -121,6 +121,52 @@ export default function Footer() {
                   <span>{t.footer.gvaOpenData}</span>
                   <ExternalLink className="w-3 h-3 text-gray-400 group-hover:translate-x-0.5" />
                 </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4: Legal and Privacy */}
+          <div className="md:col-span-3 flex flex-col space-y-4">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-wider uppercase">
+              {t.footer.legalTitle}
+            </h3>
+            <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link
+                  href="/aviso-legal"
+                  className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-200"
+                >
+                  {t.footer.legalNotice}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacidad"
+                  className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-200"
+                >
+                  {t.footer.privacyPolicy}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/cookies"
+                  className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-200"
+                >
+                  {t.footer.cookiePolicy}
+                </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('open_cookie_settings'));
+                    }
+                  }}
+                  className="text-left text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-200"
+                >
+                  {t.footer.cookieSettings}
+                </button>
               </li>
             </ul>
           </div>

@@ -25,6 +25,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
 
+    const legalEntries: MetadataRoute.Sitemap = [
+      {
+        url: `${baseUrl}/aviso-legal`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.5,
+      },
+      {
+        url: `${baseUrl}/privacidad`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.5,
+      },
+      {
+        url: `${baseUrl}/cookies`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.5,
+      },
+    ];
+
     return [
       {
         url: baseUrl,
@@ -39,6 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           }
         }
       },
+      ...legalEntries,
       ...centerEntries,
     ];
   } catch (error) {
@@ -56,6 +78,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             en: `${baseUrl}?lang=en`,
           }
         }
+      },
+      {
+        url: `${baseUrl}/aviso-legal`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.5,
+      },
+      {
+        url: `${baseUrl}/privacidad`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.5,
+      },
+      {
+        url: `${baseUrl}/cookies`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.5,
       },
     ];
   }
