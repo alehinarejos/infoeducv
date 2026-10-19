@@ -376,7 +376,7 @@ export default function Directory({ initialCenters, totalCount }: DirectoryProps
       )}
       
       {/* Search and Filters Bar */}
-      <div className="p-4 shrink-0 transition-colors z-10 relative bg-transparent">
+      <div data-google-ad-ignore="true" className="p-4 shrink-0 transition-colors z-10 relative bg-transparent">
         <div className="max-w-7xl mx-auto">
           <div className="relative glass-panel rounded-2xl p-6 transition-all">
             {/* Decorative top border matching logo colors (Teal to Orange) */}

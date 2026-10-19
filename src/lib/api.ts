@@ -4,6 +4,7 @@ import { Center, FPCycle, SocialMediaLinks } from '@/types';
 import { cache } from 'react';
 import privateWebsites from '@/data/privateWebsites.json';
 import socialMedia from '@/data/socialMedia.json';
+import centersFallback from '@/data/centersFallback.json';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -55,15 +56,25 @@ export const getCenters = cache(async (): Promise<Center[]> => {
     console.warn("⚠️ [CACHE DISCO] Error al leer caché en disco:", e);
   }
 
-  console.log("🌐 [FETCH SERVIDOR] Descargando y procesando nuevos datos de GVA");
-
   try {
-    // Fetch FP data
-    const fpResponse = await fetch(FP_URL, { next: { revalidate: 86400 } });
-    if (!fpResponse.ok) {
-      throw new Error(`Failed to fetch FP data: ${fpResponse.statusText}`);
+    // Fetch FP and Centros in parallel with 6s timeout to prevent Vercel 10s Serverless timeouts
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+    const [fpResponse, centrosResponse] = await Promise.all([
+      fetch(FP_URL, { next: { revalidate: 86400 }, signal: controller.signal }),
+      fetch(CENTROS_URL, { next: { revalidate: 86400 }, signal: controller.signal }),
+    ]);
+    clearTimeout(timeoutId);
+
+    if (!fpResponse.ok || !centrosResponse.ok) {
+      throw new Error(`Failed to fetch GVA data: FP ${fpResponse.statusText}, Centros ${centrosResponse.statusText}`);
     }
-    const fpText = await fpResponse.text();
+
+    const [fpText, centrosText] = await Promise.all([
+      fpResponse.text(),
+      centrosResponse.text(),
+    ]);
 
     const fpMap = new Map<string, Map<string, FPCycle>>(); // cod_centro -> Map of unique cycles
 
@@ -102,13 +113,6 @@ export const getCenters = cache(async (): Promise<Center[]> => {
         .on('end', resolve)
         .on('error', reject);
     });
-
-    // Fetch Centros data
-    const centrosResponse = await fetch(CENTROS_URL, { next: { revalidate: 86400 } });
-    if (!centrosResponse.ok) {
-      throw new Error(`Failed to fetch Centros data: ${centrosResponse.statusText}`);
-    }
-    const centrosText = await centrosResponse.text();
 
     const results: Center[] = [];
 
@@ -200,10 +204,12 @@ export const getCenters = cache(async (): Promise<Center[]> => {
     } catch {
       // ignore
     }
-    if (cachedCenters) {
+    if (cachedCenters && cachedCenters.length > 0) {
       console.log("⚠️ [FALLBACK CACHÉ] Retornando versión anterior de centros en memoria");
       return cachedCenters.map(enrichCenterWithCustomData);
     }
-    return [];
+
+    console.log("🛡️ [FALLBACK LOCAL] Retornando catálogo estático de respaldo para garantizar disponibilidad (0 errores 5xx)");
+    return (centersFallback as Center[]).map(enrichCenterWithCustomData);
   }
 });

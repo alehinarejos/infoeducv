@@ -26,6 +26,7 @@ export default function Header() {
 
   return (
     <header
+      data-google-ad-ignore="true"
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled
           ? 'header-glass-scrolled'
@@ -37,12 +38,16 @@ export default function Header() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex justify-between h-20 items-center" aria-label="Navegación principal">
-          <Link href="/" className="flex items-center gap-1 group" aria-label="InfoEdu CV - Inicio">
-            <div className="relative w-28 h-28 flex-shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center -ml-4">
+          <Link href="/" className="flex items-center gap-1 group min-w-0" aria-label="InfoEdu CV - Inicio">
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center -ml-3 sm:-ml-4">
               <Image src="/logo.svg" alt="InfoEdu Logo" fill className="object-contain scale-[1.75] translate-y-3" priority />
             </div>
-            <span className="font-bold text-xl text-gray-900 dark:text-white tracking-tight">
-              InfoEdu <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#114b5f] via-[#d38c28] to-[#e59829] dark:from-primary-400 dark:to-amber-400">Comunitat Valenciana</span>
+            <span className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white tracking-tight truncate">
+              InfoEdu{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#114b5f] via-[#d38c28] to-[#e59829] dark:from-primary-400 dark:to-amber-400">
+                <span className="hidden sm:inline">Comunitat Valenciana</span>
+                <span className="sm:hidden">CV</span>
+              </span>
             </span>
           </Link>
           <div className="flex items-center gap-3 sm:gap-4">

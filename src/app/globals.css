@@ -58,12 +58,40 @@ body {
 }
 
 /* Dynamic Header Glassmorphism on Scroll */
+/* On mobile (< 768px), always provide a readable glass background with border */
 .header-glass-top {
-  background-color: transparent !important;
-  backdrop-filter: blur(0px) !important;
-  -webkit-backdrop-filter: blur(0px) !important;
-  border-bottom-color: transparent !important;
-  box-shadow: none !important;
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 4px 20px -5px rgba(15, 23, 42, 0.06) !important;
+}
+
+.dark .header-glass-top {
+  background-color: rgba(6, 8, 20, 0.92) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* On desktop (md: 768px and up), keep transparent header when at top of page */
+@media (min-width: 768px) {
+  .header-glass-top {
+    background-color: transparent !important;
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    border-bottom: 1px solid transparent !important;
+    box-shadow: none !important;
+  }
+
+  .dark .header-glass-top {
+    background-color: transparent !important;
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    border-bottom: 1px solid transparent !important;
+    box-shadow: none !important;
+  }
 }
 
 .header-glass-scrolled {
@@ -303,3 +331,15 @@ body {
 .dark .leaflet-control-attribution {
   filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
+
+/* Google AdSense Layout Stabilization */
+.adsbygoogle[data-ad-status="unfilled"] {
+  display: none !important;
+}
+
+.google-auto-placed {
+  margin: 1.5rem auto !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
