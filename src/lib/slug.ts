@@ -23,6 +23,14 @@ export function getCenterSlug(center: { id: string; name: string; municipality?:
   return `${cleanName}-${center.id}`;
 }
 
+export function getMunicipalitySlug(municipality: string): string {
+  return cleanTextForSlug(municipality);
+}
+
+export function getFpFamilySlug(family: string): string {
+  return cleanTextForSlug(family);
+}
+
 export function extractIdFromSlug(slugOrId: string): string {
   if (!slugOrId) return '';
   

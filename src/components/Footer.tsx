@@ -172,6 +172,65 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* SEO Hub Links: Principales Municipios y Familias de FP */}
+        <div className="mt-12 pt-8 border-t border-gray-200/70 dark:border-gray-900 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white tracking-wider uppercase mb-3">
+              Colegios e Institutos por Municipio (GVA)
+            </h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+              {[
+                { slug: 'valencia', label: 'Colegios en València' },
+                { slug: 'alacant', label: 'Colegios en Alicante' },
+                { slug: 'castello-de-la-plana', label: 'Colegios en Castellón' },
+                { slug: 'elx', label: 'Colegios en Elche / Elx' },
+                { slug: 'torrent', label: 'Colegios en Torrent' },
+                { slug: 'paterna', label: 'Colegios en Paterna' },
+                { slug: 'sant-vicent-del-raspeig', label: 'Sant Vicent del Raspeig' },
+                { slug: 'alcoi', label: 'Colegios en Alcoy / Alcoi' },
+                { slug: 'benidorm', label: 'Colegios en Benidorm' },
+                { slug: 'gandia', label: 'Colegios en Gandia' },
+                { slug: 'vila-real', label: 'Colegios en Vila-real' },
+                { slug: 'torrevieja', label: 'Colegios en Torrevieja' },
+              ].map((m) => (
+                <Link
+                  key={m.slug}
+                  href={`/municipio/${m.slug}`}
+                  className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                >
+                  {m.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white tracking-wider uppercase mb-3">
+              Formación Profesional (FP) más buscada en la Comunitat Valenciana
+            </h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+              {[
+                { slug: 'informatica-y-comunicaciones', label: 'FP Informática y Comunicaciones' },
+                { slug: 'sanidad', label: 'FP Sanidad' },
+                { slug: 'administracion-y-gestion', label: 'FP Administración y Gestión' },
+                { slug: 'electricidad-y-electronica', label: 'FP Electricidad y Electrónica' },
+                { slug: 'comercio-y-marketing', label: 'FP Comercio y Marketing' },
+                { slug: 'hosteleria-y-turismo', label: 'FP Hostelería y Turismo' },
+                { slug: 'transporte-y-mantenimiento-de-vehiculos', label: 'FP Automoción y Vehículos' },
+                { slug: 'imagen-personal', label: 'FP Imagen Personal' },
+              ].map((fp) => (
+                <Link
+                  key={fp.slug}
+                  href={`/fp/${fp.slug}`}
+                  className="text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                >
+                  {fp.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Separator */}
         <hr className="my-10 border-gray-200 dark:border-gray-900" />
 

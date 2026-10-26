@@ -2,20 +2,23 @@
 
 import { Center } from '@/types';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, MapPin, Phone, Globe, BookOpen, GraduationCap, ExternalLink, ShieldCheck, Building, ArrowRight, Star, MessageSquare, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, Phone, Globe, BookOpen, GraduationCap, ExternalLink, ShieldCheck, ArrowRight, Star, MessageSquare, Info, HelpCircle } from 'lucide-react';
 import MapWrapper from '@/components/MapWrapper';
 import { useLanguage } from '@/context/LanguageContext';
-import { getCenterSlug } from '@/lib/slug';
+import { getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
 import SocialMediaSection from '@/components/SocialMediaSection';
+import type { MunicipalityStats } from '@/components/seo/CenterJsonLd';
 
 interface CentroDetailProps {
   center: Center;
   relatedCenters?: Center[];
+  municipalityStats?: MunicipalityStats;
 }
 
-export default function CentroDetail({ center, relatedCenters = [] }: CentroDetailProps) {
+export default function CentroDetail({ center, relatedCenters = [], municipalityStats }: CentroDetailProps) {
   const { t } = useLanguage();
   const provinceName = center.province.split('/')[0];
+  const municipalitySlug = getMunicipalitySlug(center.municipality || '');
 
   const getNaturalezaBadge = (type: string) => {
     switch (type?.toUpperCase()) {
@@ -94,7 +97,7 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
               {provinceName}
             </Link>
             <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
-            <Link href={`/?q=${encodeURIComponent(center.municipality)}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            <Link href={municipalitySlug ? `/municipio/${municipalitySlug}` : `/?q=${encodeURIComponent(center.municipality)}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
               {center.municipality}
             </Link>
             <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
@@ -269,9 +272,19 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
                           <div className="space-y-5">
                             {Array.from(new Set(center.fpCycles.map(c => c.family))).map(family => (
                               <div key={family} className="bg-white/40 dark:bg-slate-900/20 rounded-xl p-4 shadow-sm border border-slate-200/20 dark:border-white/5">
-                                <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-sm flex items-center gap-2 border-b border-slate-200/30 dark:border-white/5 pb-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></div>
-                                  {family}
+                                <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-sm flex items-center justify-between gap-2 border-b border-slate-200/30 dark:border-white/5 pb-2">
+                                  <span className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></div>
+                                    {family}
+                                  </span>
+                                  {family !== 'Otras familias' && (
+                                    <Link
+                                      href={`/fp/${getFpFamilySlug(family)}`}
+                                      className="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:underline"
+                                    >
+                                      Ver centros con FP {family} →
+                                    </Link>
+                                  )}
                                 </h4>
                                 <ul className="space-y-2">
                                   {center.fpCycles?.filter(c => c.family === family).map(cycle => (
@@ -485,7 +498,7 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
                 </p>
               </div>
               <Link
-                href={`/?q=${encodeURIComponent(center.municipality)}`}
+                href={municipalitySlug ? `/municipio/${municipalitySlug}` : `/?q=${encodeURIComponent(center.municipality)}`}
                 className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700 dark:text-amber-400 transition-colors"
               >
                 <span>{t.centerDetail.viewAllInMunicipality} {center.municipality}</span>
@@ -513,9 +526,9 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
                           </span>
                         )}
                       </div>
-                      <h4 className="font-bold text-sm text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+                      <h3 className="font-bold text-sm text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
                         {rel.name}
-                      </h4>
+                      </h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
                         {rel.address}
                       </p>
@@ -531,6 +544,86 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
             </div>
           </div>
         )}
+
+        {/* Dynamic Center FAQ & Municipality Editorial Summary for Long-Tail SEO */}
+        <section className="mt-14 pt-10 border-t border-slate-200/40 dark:border-white/5">
+          <div className="glass-panel rounded-2xl p-6 sm:p-8">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-2 rounded-lg bg-primary-500/10 text-primary-600 dark:text-primary-400">
+                <HelpCircle className="w-5 h-5" />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                Preguntas frecuentes sobre {center.name} (Curso 2026/2027)
+              </h2>
+            </div>
+
+            {municipalityStats && (
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                El centro educativo <strong>{center.name}</strong> (código GVA <code>{center.id}</code>) es uno de los{' '}
+                <Link
+                  href={`/municipio/${municipalitySlug}`}
+                  className="font-bold text-primary-600 dark:text-primary-400 hover:underline"
+                >
+                  {municipalityStats.totalCenters} centros docentes de {center.municipality}
+                </Link>{' '}
+                ({municipalityStats.publicCount} públicos y {municipalityStats.concertedPrivateCount} concertados o privados, con {municipalityStats.fpCentersCount} centros que imparten Formación Profesional o secundaria en la localidad).
+              </p>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="glass-card p-5 rounded-xl">
+                <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
+                  ¿El centro {center.name} es público, concertado o privado?
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                  <strong>{center.name}</strong> es un centro de titularidad <strong>{center.type.toLowerCase()}</strong> inscrito en el Registro Oficial de Centros Docentes de la Conselleria de Educación de la Generalitat Valenciana (GVA) con el código identificativo <strong>{center.id}</strong>.
+                </p>
+              </div>
+
+              <div className="glass-card p-5 rounded-xl">
+                <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
+                  ¿Qué niveles educativos y ciclos de FP imparte {center.name}?
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                  En el curso 2026/2027, el centro ofrece las etapas de{' '}
+                  <strong>{center.levels?.length ? center.levels.join(', ') : 'enseñanza reglada'}</strong>.
+                  {center.fpCycles && center.fpCycles.length > 0
+                    ? ` Cuenta además con ${center.fpCycles.length} ciclos formativos oficiales de FP (${Array.from(
+                        new Set(center.fpCycles.map((c) => c.family))
+                      ).join(', ')}).`
+                    : ''}
+                </p>
+              </div>
+
+              <div className="glass-card p-5 rounded-xl">
+                <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
+                  ¿Cuál es el teléfono, dirección y web oficial de {center.name}?
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Se encuentra en <strong>{center.address}</strong> ({center.zipCode} {center.municipality}, {provinceName}).
+                  {center.phone ? ` Su teléfono directo de secretaría/contacto es el ${center.phone}.` : ''}
+                  {center.url ? ` Dispone de acceso directo a su portal web oficial en la parte superior de esta ficha.` : ''}
+                </p>
+              </div>
+
+              <div className="glass-card p-5 rounded-xl">
+                <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
+                  ¿Cómo comparar {center.name} con otros centros de {center.municipality}?
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Puedes consultar el listado completo de{' '}
+                  <Link
+                    href={`/municipio/${municipalitySlug}`}
+                    className="font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                  >
+                    colegios, institutos y centros de FP en {center.municipality}
+                  </Link>{' '}
+                  para comparar titularidad, distancia desde tu código postal y oferta de ciclos formativos.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
       </div>
     </div>
