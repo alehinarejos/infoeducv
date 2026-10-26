@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -8,7 +9,12 @@ import CookieBanner from "@/components/CookieBanner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+});
 
 export const viewport: Viewport = {
   themeColor: [
@@ -127,13 +133,15 @@ export default function RootLayout({
             `,
           }}
         />
-        <script
+      </head>
+      <body className={`${inter.className} bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50 dark:from-[#060814] dark:via-[#060814] dark:to-[#060814] text-slate-900 dark:text-slate-100 flex flex-col min-h-screen transition-colors relative overflow-x-hidden`}>
+        <Script
+          id="adsbygoogle-init"
           async
+          strategy="lazyOnload"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2399050855679303"
           crossOrigin="anonymous"
         />
-      </head>
-      <body className={`${inter.className} bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50 dark:from-[#060814] dark:via-[#060814] dark:to-[#060814] text-slate-900 dark:text-slate-100 flex flex-col min-h-screen transition-colors relative overflow-x-hidden`}>
         {/* Ambient background glow elements for Liquid Glass Effect with Teal & Logo Orange accents */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 transform-gpu">
           <div className="absolute top-[-5%] left-[10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full bg-cyan-200/30 dark:bg-purple-600/15 blur-[60px] md:blur-[100px]" />

@@ -2,9 +2,58 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { Metadata } from 'next';
 import { getCenters } from '@/lib/api';
 import CentroDetail from '@/components/CentroDetail';
+import CenterJsonLd from '@/components/seo/CenterJsonLd';
 import { extractIdFromSlug, getCenterSlug } from '@/lib/slug';
+import type { Center } from '@/types';
 
 export const revalidate = 86400; // Revalidate every 24 hours
+
+function buildOptimizedCenterTitle(center: Center): string {
+  const name = center.name.trim();
+  const muni = center.municipality?.trim() || 'Comunitat Valenciana';
+  const hasFp = center.levels?.includes('FP') || Boolean(center.fpCycles?.length);
+  const hasBach = center.levels?.includes('Bachillerato');
+
+  let keyOffer = center.type && center.type !== 'Desconocido' ? `Centro ${center.type}` : 'Centro Educativo';
+  if (hasFp && hasBach) {
+    keyOffer = 'FP y Bachillerato';
+  } else if (hasFp) {
+    const cycleCount = center.fpCycles?.length || 0;
+    keyOffer = cycleCount > 0 ? `Ciclos FP (${cycleCount})` : 'Formación Profesional';
+  } else if (hasBach) {
+    keyOffer = 'Bachillerato y ESO';
+  } else if (center.levels && center.levels.length > 0) {
+    keyOffer = center.levels.slice(0, 2).join(' y ');
+  }
+
+  // Formula optimizada para CTR: [Nombre del Centro] - [Nivel/FP] en [Municipio] | InfoEdu CV
+  const fullCandidate = `${name} - ${keyOffer} en ${muni} | InfoEdu CV`;
+  if (fullCandidate.length <= 65) return fullCandidate;
+
+  const mediumCandidate = `${name} (${muni}) - ${keyOffer} | InfoEdu CV`;
+  if (mediumCandidate.length <= 65) return mediumCandidate;
+
+  const shortCandidate = `${name} en ${muni} | InfoEdu CV`;
+  return shortCandidate.length <= 65 ? shortCandidate : `${name.slice(0, 42).trim()}… | InfoEdu CV`;
+}
+
+function buildOptimizedCenterDescription(center: Center, provinceClean: string): string {
+  const muni = center.municipality?.trim() || provinceClean;
+  const typeLabel =
+    center.type && center.type !== 'Desconocido' ? `Centro ${center.type.toLowerCase()}` : 'Centro educativo';
+  const levelsStr =
+    center.levels && center.levels.length > 0 ? ` Oferta: ${center.levels.join(', ')}.` : '';
+  const fpCountStr =
+    center.fpCycles && center.fpCycles.length > 0
+      ? ` ${center.fpCycles.length} ciclos de FP oficiales.`
+      : '';
+  const phoneStr = center.phone ? ` Tel: ${center.phone}.` : '';
+
+  const rawDesc = `${typeLabel} ${center.name} en ${muni} (${provinceClean}).${levelsStr}${fpCountStr}${phoneStr} Dirección, mapa y acceso a su web oficial GVA.`;
+
+  if (rawDesc.length <= 158) return rawDesc;
+  return `${rawDesc.slice(0, 155).trim()}...`;
+}
 
 export async function generateStaticParams() {
   const centers = await getCenters();
@@ -27,30 +76,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   const canonicalSlug = getCenterSlug(center);
-  const provinceClean = center.province.split('/')[0];
-
-  // High-CTR search intent keywords
-  const hasFp = center.levels?.includes('FP') || (center.fpCycles && center.fpCycles.length > 0);
-  const hasBach = center.levels?.includes('Bachillerato');
-  
-  let keyOffer = '';
-  if (hasFp && hasBach) {
-    keyOffer = 'FP y Bachillerato';
-  } else if (hasFp) {
-    const cycleCount = center.fpCycles?.length || 0;
-    keyOffer = cycleCount > 0 ? `Ciclos FP (${cycleCount})` : 'Formación Profesional';
-  } else if (hasBach) {
-    keyOffer = 'Bachillerato y ESO';
-  } else if (center.levels && center.levels.length > 0) {
-    keyOffer = center.levels.join(', ');
-  } else {
-    keyOffer = center.type;
-  }
-
-  const title = `${center.name} (${center.municipality}) | ${keyOffer} y Web Oficial | InfoEdu CV`;
-  
-  const fpCountStr = center.fpCycles && center.fpCycles.length > 0 ? ` con ${center.fpCycles.length} ciclos formativos oficiales` : '';
-  const description = `Toda la información oficial de ${center.name} en ${center.municipality} (${provinceClean}): oferta formativa (${center.levels?.join(', ')})${fpCountStr}, dirección, teléfono y enlace directo a su web oficial sin intermediarios.`;
+  const provinceClean = center.province?.split('/')[0]?.trim() || 'Comunitat Valenciana';
+  const title = buildOptimizedCenterTitle(center);
+  const description = buildOptimizedCenterDescription(center, provinceClean);
 
   return {
     title: {
@@ -72,9 +100,22 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       provinceClean,
       ...(center.levels || [])
     ],
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
     openGraph: {
       title: `${center.name} (${center.municipality}) - Información y Oferta Educativa`,
       description: description,
+      url: `/centro/${canonicalSlug}`,
+      siteName: 'InfoEdu CV',
       type: "website",
       locale: "es_ES",
       alternateLocale: ["ca_ES", "en_US"],
@@ -83,7 +124,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
           url: '/logo.png',
           width: 1200,
           height: 630,
-          alt: `${center.name} - InfoEdu CV`,
+          alt: `${center.name} en ${center.municipality} - InfoEdu CV`,
         }
       ],
     },
@@ -135,5 +176,10 @@ export default async function CentroPage({ params }: { params: Promise<{ id: str
     relatedCenters = [...relatedCenters, ...moreFromProvince];
   }
 
-  return <CentroDetail center={center} relatedCenters={relatedCenters} />;
+  return (
+    <>
+      <CenterJsonLd center={center} />
+      <CentroDetail center={center} relatedCenters={relatedCenters} />
+    </>
+  );
 }

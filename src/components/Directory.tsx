@@ -4,19 +4,10 @@ import Link from 'next/link';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Center } from '@/types';
-import dynamic from 'next/dynamic';
+import MapWrapper from './MapWrapper';
 import { Search, Map as MapIcon, List as ListIcon, GraduationCap, Building, MapPin, ArrowRight, Navigation, Share2, X, Globe } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { getCenterSlug } from '@/lib/slug';
-
-const MapWrapper = dynamic(() => import('./MapWrapper'), {
-  ssr: false,
-  loading: () => (
-    <div className="h-full w-full bg-gray-100 dark:bg-gray-900 animate-pulse rounded-lg flex items-center justify-center">
-      <span className="text-gray-400 font-bold">...</span>
-    </div>
-  )
-});
 
 interface DirectoryProps {
   initialCenters: Center[];

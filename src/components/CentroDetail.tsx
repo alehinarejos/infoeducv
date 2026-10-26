@@ -14,8 +14,7 @@ interface CentroDetailProps {
 }
 
 export default function CentroDetail({ center, relatedCenters = [] }: CentroDetailProps) {
-  const { t, language } = useLanguage();
-  const canonicalSlug = getCenterSlug(center);
+  const { t } = useLanguage();
   const provinceName = center.province.split('/')[0];
 
   const getNaturalezaBadge = (type: string) => {
@@ -64,64 +63,6 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
     return 'bg-primary-50 border-primary-100 dark:bg-primary-900/10 dark:border-primary-800/30';
   };
 
-  // Schema.org: EducationalOrganization
-  const jsonLdOrg = {
-    "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    "name": center.name,
-    "description": `${getLocalizedType(center.type)} en ${center.municipality} (${provinceName})`,
-    "inLanguage": language === 'va' ? 'ca' : language,
-    "image": "https://info-edu-cv.vercel.app/logo.png",
-    "logo": "https://info-edu-cv.vercel.app/logo.png",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": center.address,
-      "addressLocality": center.municipality,
-      "postalCode": center.zipCode,
-      "addressRegion": provinceName,
-      "addressCountry": "ES"
-    },
-    "telephone": center.phone || undefined,
-    "url": center.url || undefined,
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": center.lat,
-      "longitude": center.lng
-    }
-  };
-
-  // Schema.org: BreadcrumbList for rich snippets in Google
-  const jsonLdBreadcrumb = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": t.centerDetail.breadcrumbsHome,
-        "item": "https://info-edu-cv.vercel.app"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": provinceName,
-        "item": `https://info-edu-cv.vercel.app/?prov=${encodeURIComponent(center.province)}`
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": center.municipality,
-        "item": `https://info-edu-cv.vercel.app/?q=${encodeURIComponent(center.municipality)}`
-      },
-      {
-        "@type": "ListItem",
-        "position": 4,
-        "name": center.name,
-        "item": `https://info-edu-cv.vercel.app/centro/${canonicalSlug}`
-      }
-    ]
-  };
-
   const getWebsiteTitle = () => {
     if (center.hasCustomUrl) return t.centerDetail.officialWebsite;
     if (center.type === 'Público') return t.centerDetail.gvaPortal;
@@ -130,15 +71,6 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
 
   return (
     <div className="min-h-screen bg-transparent py-6 transition-colors">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }}
-      />
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Navigation & Breadcrumbs Row */}
@@ -304,12 +236,12 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
               <div className="glass-panel rounded-2xl p-5 sm:p-8">
                 <div className="mb-5">
                   <div className="flex items-start justify-between gap-4 mb-3">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                       <div className="p-2 bg-primary-600 text-white rounded-lg shrink-0 shadow-md">
                         <BookOpen className="w-5 h-5" />
                       </div>
                       {t.centerDetail.educationalOffer}
-                    </h3>
+                    </h2>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-500/10 rounded-full shrink-0 border border-primary-500/20 dark:border-primary-500/10">
                       <GraduationCap className="w-4 h-4 text-primary-700 dark:text-primary-300" />
                       <span className="text-sm font-bold text-primary-700 dark:text-primary-300">{center.levels.length} {t.centerDetail.levelsAvailable}</span>
@@ -434,9 +366,9 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
               <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
               {t.centerDetail.reviewsBadge}
             </div>
-            <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+            <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
               {t.centerDetail.reviewsTitle}
-            </h3>
+            </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {t.centerDetail.reviewsSubtitle}
             </p>
@@ -545,9 +477,9 @@ export default function CentroDetail({ center, relatedCenters = [] }: CentroDeta
           <div className="mt-14 pt-10 border-t border-slate-200/40 dark:border-white/5 animate-fade-in-up">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                   {t.centerDetail.relatedSchoolsTitle} <span className="text-primary-600 dark:text-primary-400">{center.municipality}</span>
-                </h3>
+                </h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {t.centerDetail.officialSourceNote}
                 </p>

@@ -1,9 +1,64 @@
+import type { Metadata } from 'next';
 import Directory from '@/components/Directory';
 import FAQ from '@/components/FAQ';
 import { getCenters } from '@/lib/api';
 import { Suspense } from 'react';
 
 export const revalidate = 86400; // Revalidate every 24 hours
+
+const FILTER_QUERY_KEYS = [
+  'q',
+  'prov',
+  'level',
+  'tit',
+  'zip',
+  'cycleQ',
+  'family',
+  'fp',
+  'view',
+  'page',
+] as const;
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<{ [key: string]: string | undefined }>;
+}): Promise<Metadata> {
+  const params = searchParams ? await searchParams : {};
+  const hasFilterParams = FILTER_QUERY_KEYS.some((key) => Boolean(params[key]));
+
+  return {
+    alternates: {
+      canonical: '/',
+      languages: {
+        es: '/',
+        'ca-ES': '/?lang=va',
+        en: '/?lang=en',
+        'x-default': '/',
+      },
+    },
+    robots: hasFilterParams
+      ? {
+          index: false,
+          follow: true,
+          googleBot: {
+            index: false,
+            follow: true,
+          },
+        }
+      : {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            'max-video-preview': -1,
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+          },
+        },
+  };
+}
 
 export default async function Home({
   searchParams,

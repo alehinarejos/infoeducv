@@ -2,101 +2,71 @@ import { MetadataRoute } from 'next';
 import { getCenters } from '@/lib/api';
 import { getCenterSlug } from '@/lib/slug';
 
+export const revalidate = 86400; // Revalidate sitemap every 24 hours
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://info-edu-cv.vercel.app';
-  
+  const dailyLastMod = new Date(new Date().toISOString().split('T')[0]);
+
+  const legalEntries: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/aviso-legal`,
+      lastModified: new Date('2026-01-01'),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/privacidad`,
+      lastModified: new Date('2026-01-01'),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/cookies`,
+      lastModified: new Date('2026-01-01'),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+  ];
+
+  const homeEntry: MetadataRoute.Sitemap[number] = {
+    url: baseUrl,
+    lastModified: dailyLastMod,
+    changeFrequency: 'daily',
+    priority: 1.0,
+    alternates: {
+      languages: {
+        es: baseUrl,
+        'ca-ES': `${baseUrl}?lang=va`,
+        en: `${baseUrl}?lang=en`,
+      },
+    },
+  };
+
   try {
     const centers = await getCenters();
 
     const centerEntries: MetadataRoute.Sitemap = centers.map((center) => {
       const slug = getCenterSlug(center);
+      const hasFp = Boolean(center.fpCycles && center.fpCycles.length > 0);
       return {
         url: `${baseUrl}/centro/${slug}`,
-        lastModified: new Date(),
+        lastModified: dailyLastMod,
         changeFrequency: 'monthly',
-        priority: 0.8,
+        priority: hasFp ? 0.85 : 0.8,
         alternates: {
           languages: {
             es: `${baseUrl}/centro/${slug}`,
             'ca-ES': `${baseUrl}/centro/${slug}?lang=va`,
             en: `${baseUrl}/centro/${slug}?lang=en`,
-          }
-        }
+          },
+        },
       };
     });
 
-    const legalEntries: MetadataRoute.Sitemap = [
-      {
-        url: `${baseUrl}/aviso-legal`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.5,
-      },
-      {
-        url: `${baseUrl}/privacidad`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.5,
-      },
-      {
-        url: `${baseUrl}/cookies`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.5,
-      },
-    ];
-
-    return [
-      {
-        url: baseUrl,
-        lastModified: new Date(),
-        changeFrequency: 'daily',
-        priority: 1,
-        alternates: {
-          languages: {
-            es: baseUrl,
-            'ca-ES': `${baseUrl}?lang=va`,
-            en: `${baseUrl}?lang=en`,
-          }
-        }
-      },
-      ...legalEntries,
-      ...centerEntries,
-    ];
+    return [homeEntry, ...legalEntries, ...centerEntries];
   } catch (error) {
     console.error('Error al generar el sitemap:', error);
-    return [
-      {
-        url: baseUrl,
-        lastModified: new Date(),
-        changeFrequency: 'daily',
-        priority: 1,
-        alternates: {
-          languages: {
-            es: baseUrl,
-            'ca-ES': `${baseUrl}?lang=va`,
-            en: `${baseUrl}?lang=en`,
-          }
-        }
-      },
-      {
-        url: `${baseUrl}/aviso-legal`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.5,
-      },
-      {
-        url: `${baseUrl}/privacidad`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.5,
-      },
-      {
-        url: `${baseUrl}/cookies`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.5,
-      },
-    ];
+    return [homeEntry, ...legalEntries];
   }
 }
