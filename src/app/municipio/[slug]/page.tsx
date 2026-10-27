@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getCenters } from '@/lib/api';
-import { formatLocationName, formatSchoolName, getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
+import { formatLocationName, formatSchoolName, getCenterSlug, getFpFamilySlug, getMunicipalitySlug, getProvinceSlug } from '@/lib/slug';
 import { Building, ChevronLeft, ChevronRight, GraduationCap, MapPin, ArrowRight, Globe, Phone, BookOpen } from 'lucide-react';
 
 export const revalidate = 86400; // Revalidate every 24 hours
@@ -166,7 +166,7 @@ export default async function MunicipioPage({
             '@type': 'ListItem',
             position: 2,
             name: provinceClean,
-            item: `${BASE_URL}/?prov=${encodeURIComponent(provinceRaw)}`,
+            item: `${BASE_URL}/provincia/${getProvinceSlug(provinceRaw)}`,
           },
           {
             '@type': 'ListItem',
@@ -244,7 +244,7 @@ export default async function MunicipioPage({
               Inicio
             </Link>
             <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
-            <Link href={`/?prov=${encodeURIComponent(provinceRaw)}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            <Link href={`/provincia/${getProvinceSlug(provinceRaw)}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
               {provinceClean}
             </Link>
             <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />

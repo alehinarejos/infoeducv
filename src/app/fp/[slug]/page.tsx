@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getCenters } from '@/lib/api';
-import { formatLocationName, formatSchoolName, getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
+import { formatLocationName, formatSchoolName, getCenterSlug, getFpCycleAcronym, getFpCycleSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
 import { Building, ChevronLeft, ChevronRight, GraduationCap, MapPin, ArrowRight, BookOpen } from 'lucide-react';
 
 export const revalidate = 86400; // Revalidate every 24 hours
@@ -263,24 +263,37 @@ export default async function FpFamilyPage({
             Ciclos Formativos Oficiales de {familyName} ({uniqueCycles.length})
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {uniqueCycles.map((cycle) => (
-              <div
-                key={`${cycle.grade}-${cycle.name}`}
-                className="glass-card p-4 rounded-xl flex items-start justify-between gap-3"
-              >
-                <div>
-                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/25 mb-1">
-                    {cycle.grade}
+            {uniqueCycles.map((cycle) => {
+              const cycleSlug = getFpCycleSlug(cycle);
+              const acronym = getFpCycleAcronym(cycle.name);
+              return (
+                <Link
+                  key={`${cycle.grade}-${cycle.name}`}
+                  href={`/fp/ciclo/${cycleSlug}`}
+                  className="glass-card p-4 rounded-xl flex items-start justify-between gap-3 group hover:border-primary-400 dark:hover:border-primary-500 transition-all"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/25">
+                        {cycle.grade}
+                      </span>
+                      {acronym && (
+                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                          {acronym}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors leading-snug">
+                      {cycle.name}{acronym ? ` (${acronym})` : ''}
+                    </h3>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary-500/10 text-primary-700 dark:text-primary-300 shrink-0 inline-flex items-center gap-1">
+                    {cycle.centersCount} centros
+                    <ArrowRight className="w-3 h-3" />
                   </span>
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white leading-snug">
-                    {cycle.name}
-                  </h3>
-                </div>
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary-500/10 text-primary-700 dark:text-primary-300 shrink-0">
-                  {cycle.centersCount} centros
-                </span>
-              </div>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </section>
 

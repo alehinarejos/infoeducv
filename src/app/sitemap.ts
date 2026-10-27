@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getCenters } from '@/lib/api';
-import { getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
+import { getCenterSlug, getFpCycleSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
 
 export const revalidate = 86400; // Revalidate sitemap every 24 hours
 
@@ -41,6 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const municipalitySlugs = new Set<string>();
     const fpFamilySlugs = new Set<string>();
+    const fpCycleSlugs = new Set<string>();
 
     const centerEntries: MetadataRoute.Sitemap = centers.map((center) => {
       const slug = getCenterSlug(center);
@@ -54,6 +55,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           if (fSlug && fSlug !== 'otras-familias') {
             fpFamilySlugs.add(fSlug);
           }
+          const cSlug = getFpCycleSlug(cycle);
+          if (cSlug) {
+            fpCycleSlugs.add(cSlug);
+          }
         }
       }
 
@@ -64,6 +69,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: hasFp ? 0.85 : 0.8,
       };
     });
+
+    const provinceEntries: MetadataRoute.Sitemap = ['valencia', 'alicante', 'castellon'].map(
+      (pSlug) => ({
+        url: `${baseUrl}/provincia/${pSlug}`,
+        lastModified: dailyLastMod,
+        changeFrequency: 'weekly',
+        priority: 0.95,
+      })
+    );
 
     const municipalityEntries: MetadataRoute.Sitemap = Array.from(municipalitySlugs).map(
       (mSlug) => ({
@@ -81,10 +95,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     }));
 
+    const fpCycleEntries: MetadataRoute.Sitemap = Array.from(fpCycleSlugs).map((cSlug) => ({
+      url: `${baseUrl}/fp/ciclo/${cSlug}`,
+      lastModified: dailyLastMod,
+      changeFrequency: 'weekly',
+      priority: 0.88,
+    }));
+
     return [
       homeEntry,
+      ...provinceEntries,
       ...municipalityEntries,
       ...fpFamilyEntries,
+      ...fpCycleEntries,
       ...legalEntries,
       ...centerEntries,
     ];

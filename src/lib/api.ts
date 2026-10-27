@@ -12,6 +12,20 @@ import os from 'os';
 const privateWebsitesMap = privateWebsites as Record<string, string>;
 const socialMediaMap = socialMedia as Record<string, SocialMediaLinks>;
 
+const FAMILY_FIX_MAP: Record<string, string> = {
+  'Arpa': 'Actividades físicas y deportivas',
+  'Bajo eléctrico': 'Servicios socioculturales y a la comunidad',
+  'Canto': 'Industrias alimentarias',
+  'Fagot': 'Seguridad y medio ambiente',
+  'Artes y artesanias': 'Artes y artesanías',
+  'Comercio y márketing': 'Comercio y marketing',
+};
+
+function cleanFpCycleName(name: string): string {
+  if (!name) return '';
+  return name.replace(/\s*\((lfp|loe|logse)\)\s*$/i, '').trim();
+}
+
 function enrichCenterWithCustomData(center: Center): Center {
   const customWebsite = privateWebsitesMap[center.id];
   const customSocial = socialMediaMap[center.id];
@@ -26,7 +40,7 @@ function enrichCenterWithCustomData(center: Center): Center {
 const CENTROS_URL = 'https://dadesobertes.gva.es/dataset/68eb1d94-76d3-4305-8507-e1aab7717d0e/resource/1aa53c3a-4639-41aa-ac85-d58254c428c0/download/centros-docentes-de-la-comunitat-valenciana.csv';
 const FP_URL = 'https://dadesobertes.gva.es/dataset/a2183efe-f62c-48ec-bdbe-22a4b63c3832/resource/79af67de-71a2-48b1-bd6d-57a2996e2669/download/alumnos-matriculados-fp_2025.csv';
 
-const DISK_CACHE_PATH = path.join(os.tmpdir(), 'infoedu_centers_v2.json');
+const DISK_CACHE_PATH = path.join(os.tmpdir(), 'infoedu_centers_v4.json');
 
 // Variables globales para caché en memoria (sobrevive en la instancia del contenedor)
 let cachedCenters: Center[] | null = null;
@@ -98,16 +112,20 @@ export const getCenters = cache(async (): Promise<Center[]> => {
           else if (grade.includes('SUPERIOR')) grade = 'Grado Superior';
           else if (grade.includes('BÁSICA')) grade = 'FP Básica';
 
-          // Fix name casing
+          // Fix name casing and normalize GVA family/cycle names
           const formatName = (str: string) => {
             return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
           };
 
-          const key = `${grade}-${name}`;
+          const rawFormattedFamily = formatName(family);
+          const cleanFamily = FAMILY_FIX_MAP[rawFormattedFamily] || rawFormattedFamily;
+          const cleanName = cleanFpCycleName(formatName(name));
+
+          const key = `${grade}:::${cleanName.toLowerCase()}`;
           fpMap.get(codCentro)!.set(key, {
-            family: formatName(family),
+            family: cleanFamily,
             grade: grade,
-            name: formatName(name)
+            name: cleanName
           });
         })
         .on('end', resolve)
@@ -141,7 +159,7 @@ export const getCenters = cache(async (): Promise<Center[]> => {
           const fpCyclesMap = fpMap.get(data.codigo);
           const fpCycles = fpCyclesMap ? Array.from(fpCyclesMap.values()) : [];
 
-          if (fpCycles.length > 0 || denominacionGenerica.includes('FORMACIÓN PROFESIONAL') || denominacionGenerica.includes('FORMACION PROFESIONAL') || denominacionGenerica.includes('SECUNDARIA')) {
+          if (fpCycles.length > 0 || denominacionGenerica.includes('FORMACIÓN PROFESIONAL') || denominacionGenerica.includes('FORMACION PROFESIONAL')) {
             if (!niveles.includes('FP')) niveles.push('FP');
           }
 
@@ -157,11 +175,15 @@ export const getCenters = cache(async (): Promise<Center[]> => {
           const gvaUrl = data.url_es || (tipo === 'Público' ? `https://portal.edu.gva.es/${data.codigo}/` : undefined);
           const hasCustomUrl = Boolean(customWebsite);
 
+          const street = `${data.tipo_via || ''} ${data.direccion || ''}`.trim();
+          const num = (data.numero || '').trim();
+          const fullAddress = num ? `${street}, ${num}` : street;
+
           results.push({
             id: data.codigo,
             name: data.denominacion_especifica || data.denominacion,
             type: tipo,
-            address: `${data.tipo_via || ''} ${data.direccion || ''} ${data.numero || ''}`.trim(),
+            address: fullAddress,
             zipCode: data.codigo_postal,
             municipality: data.localidad,
             province: data.provincia,

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Center, FPCycle } from '@/types';
-import { cleanTextForSlug, formatLocationName, formatSchoolName, getCenterSlug, getMunicipalitySlug } from '@/lib/slug';
+import { formatLocationName, formatSchoolName, getCenterSlug, getFpCycleAcronym, getFpCycleSlug, getMunicipalitySlug, getProvinceSlug } from '@/lib/slug';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://info-edu-cv.vercel.app';
 
@@ -54,12 +54,15 @@ function buildCourseNodes(center: Center, centerUrl: string, orgId: string, form
   return center.fpCycles
     .filter((cycle): cycle is FPCycle => Boolean(cycle.name && cycle.name !== 'Desconocido'))
     .map((cycle) => {
-      const cycleSlug = cleanTextForSlug(`${cycle.grade}-${cycle.name}`);
+      const cycleSlug = getFpCycleSlug(cycle);
+      const acronym = getFpCycleAcronym(cycle.name);
+      const fullCycleTitle = `${cycle.grade} en ${cycle.name}${acronym ? ` (${acronym})` : ''}`;
       return {
         '@type': 'EducationalOccupationalProgram',
         '@id': `${centerUrl}#fp-${cycleSlug}`,
-        name: `${cycle.grade} en ${cycle.name}`,
-        description: `Ciclo formativo de ${cycle.grade} en ${cycle.name} (Familia profesional: ${cycle.family}) impartido en ${formattedName}, ${formattedMuni}.`,
+        name: fullCycleTitle,
+        url: `${BASE_URL}/fp/ciclo/${cycleSlug}`,
+        description: `Ciclo formativo de ${fullCycleTitle} (Familia profesional: ${cycle.family}) impartido en ${formattedName}, ${formattedMuni}.`,
         educationalProgramMode: 'presencial',
         educationalCredentialAwarded:
           cycle.grade === 'Grado Superior'
@@ -75,9 +78,10 @@ function buildCourseNodes(center: Center, centerUrl: string, orgId: string, form
         },
         hasCourse: {
           '@type': 'Course',
-          name: cycle.name,
+          name: `${cycle.name}${acronym ? ` (${acronym})` : ''}`,
+          url: `${BASE_URL}/fp/ciclo/${cycleSlug}`,
           courseCode: `${center.id}-${cycleSlug}`,
-          description: `Formación Profesional oficial de ${cycle.grade} en ${cycle.name} (${cycle.family}).`,
+          description: `Formación Profesional oficial de ${fullCycleTitle} (${cycle.family}).`,
           provider: {
             '@id': orgId,
           },
@@ -163,7 +167,7 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
             '@type': 'ListItem',
             position: 2,
             name: provinceClean,
-            item: `${BASE_URL}/?prov=${encodeURIComponent(center.province)}`,
+            item: `${BASE_URL}/provincia/${getProvinceSlug(center.province || '')}`,
           },
         ]
       : []),

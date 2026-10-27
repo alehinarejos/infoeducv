@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, MapPin, Phone, Globe, BookOpen, GraduationCap, ExternalLink, ShieldCheck, ArrowRight, Star, MessageSquare, Info, HelpCircle } from 'lucide-react';
 import MapWrapper from '@/components/MapWrapper';
 import { useLanguage } from '@/context/LanguageContext';
-import { formatLocationName, formatSchoolName, getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
+import { formatLocationName, formatSchoolName, getCenterSlug, getFpCycleAcronym, getFpCycleSlug, getFpFamilySlug, getMunicipalitySlug, getProvinceSlug } from '@/lib/slug';
 import SocialMediaSection from '@/components/SocialMediaSection';
 import type { MunicipalityStats } from '@/components/seo/CenterJsonLd';
 
@@ -95,7 +95,7 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
               {t.centerDetail.breadcrumbsHome}
             </Link>
             <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
-            <Link href={`/?prov=${encodeURIComponent(center.province)}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            <Link href={`/provincia/${getProvinceSlug(center.province || '')}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
               {provinceName}
             </Link>
             <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
@@ -136,6 +136,46 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
                   <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-2 leading-tight tracking-tight">
                     {displayCenterName}
                   </h1>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1.5 mb-5">
+                    <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>
+                      {formatSchoolName(center.address)} · <strong>{displayMunicipality}</strong> ({provinceName})
+                    </span>
+                  </p>
+
+                  {/* Quick Action Bar above the fold (prevents AdSense Auto Ads from hiding key CTAs on mobile) */}
+                  <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-slate-200/40 dark:border-white/10">
+                    {center.url && (
+                      <a
+                        href={center.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-[#d38c28] to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-amber-500/20 transition-all hover:-translate-y-0.5"
+                      >
+                        <Globe className="w-4 h-4" />
+                        <span>{getWebsiteTitle()}</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                    {center.phone && (
+                      <a
+                        href={`tel:${center.phone}`}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500/10 hover:bg-primary-500/20 text-primary-700 dark:text-primary-300 border border-primary-500/25 font-bold text-xs sm:text-sm transition-all"
+                      >
+                        <Phone className="w-4 h-4" />
+                        <span>{center.phone}</span>
+                      </a>
+                    )}
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${center.name}, ${center.address}, ${center.municipality}`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 border border-slate-200/70 dark:border-white/10 font-bold text-xs sm:text-sm transition-all"
+                    >
+                      <MapPin className="w-4 h-4 text-amber-500" />
+                      <span>{t.centerDetail.openInGoogleMaps}</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -145,7 +185,7 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
               <div className="glass-panel rounded-2xl overflow-hidden">
                 <div className="p-4">
                   <h4 className="font-bold text-gray-900 dark:text-white mb-1">{t.centerDetail.centerLocation}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{center.address}, {center.municipality}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{formatSchoolName(center.address)}, {displayMunicipality}</p>
                   
                   <div className="flex gap-2">
                     <a
@@ -172,9 +212,9 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-xs font-bold text-gray-450 dark:text-gray-500 uppercase tracking-wider mb-1">{t.centerDetail.address}</h4>
-                    <p className="font-bold text-gray-800 dark:text-gray-200 leading-snug text-sm">{center.address}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{center.zipCode}, {center.municipality}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{center.province}</p>
+                    <p className="font-bold text-gray-800 dark:text-gray-200 leading-snug text-sm">{formatSchoolName(center.address)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{center.zipCode}, {displayMunicipality}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{provinceName}</p>
                   </div>
                 </div>
               </div>
@@ -289,16 +329,23 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
                                   )}
                                 </h4>
                                 <ul className="space-y-2">
-                                  {center.fpCycles?.filter(c => c.family === family).map(cycle => (
-                                    <li key={`${cycle.grade}-${cycle.name}`} className="flex items-start gap-2 text-sm">
-                                      <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 uppercase tracking-wide border border-rose-200 dark:border-rose-800/50 mt-0.5">
-                                        {cycle.grade}
-                                      </span>
-                                      <span className="text-gray-700 dark:text-gray-300 font-medium leading-snug">
-                                        {cycle.name}
-                                      </span>
-                                    </li>
-                                  ))}
+                                  {center.fpCycles?.filter(c => c.family === family).map(cycle => {
+                                    const cycleSlug = getFpCycleSlug(cycle);
+                                    const acronym = getFpCycleAcronym(cycle.name);
+                                    return (
+                                      <li key={`${cycle.grade}-${cycle.name}`} className="flex items-start gap-2 text-sm">
+                                        <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 uppercase tracking-wide border border-rose-200 dark:border-rose-800/50 mt-0.5">
+                                          {cycle.grade}
+                                        </span>
+                                        <Link
+                                          href={`/fp/ciclo/${cycleSlug}`}
+                                          className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:underline font-medium leading-snug transition-colors"
+                                        >
+                                          {cycle.name}{acronym ? ` (${acronym})` : ''}
+                                        </Link>
+                                      </li>
+                                    );
+                                  })}
                                 </ul>
                               </div>
                             ))}

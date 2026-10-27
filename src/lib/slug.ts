@@ -54,6 +54,7 @@ const UPPERCASE_ACRONYMS = new Set([
   'S.A.',
   'C.V.',
   'V.',
+  'S/N',
 ]);
 
 const LOWERCASE_CONNECTORS = new Set([
@@ -141,16 +142,44 @@ export function formatSchoolName(rawName: string): string {
     .join(' ');
 }
 
+const FP_CYCLE_ACRONYMS: Record<string, string> = {
+  'desarrollo de aplicaciones web': 'DAW',
+  'desarrollo de aplicaciones multiplataforma': 'DAM',
+  'administración de sistemas informáticos en red': 'ASIR',
+  'sistemas microinformáticos y redes': 'SMR',
+  'cuidados auxiliares de enfermería': 'TCAE',
+  'enseñanza y animación sociodeportiva': 'TSEAS',
+  'guía en el medio natural y de tiempo libre': 'TECO',
+  'acondicionamiento físico': 'TSAF',
+  'administración y finanzas': 'AF',
+  'gestión administrativa': 'GA',
+  'atención a personas en situación de dependencia': 'TAPSD',
+  'integración social': 'TIS',
+  'educación infantil': 'TEI',
+  'animación sociocultural y turística': 'TASOCT',
+  'laboratorio clínico y biomédico': 'LCB',
+  'imagen para el diagnóstico y medicina nuclear': 'IDMN',
+  'anatomía patológica y citodiagnóstico': 'APC',
+  'emergencias sanitarias': 'TES',
+  'automatización y robótica industrial': 'ARI',
+  'instalaciones eléctricas y automáticas': 'IEA',
+  'sistemas electrotécnicos y automatizados': 'SEA',
+  'sistemas de telecomunicaciones e informáticos': 'STI',
+  'inteligencia artificial y big data': 'IABD',
+  'ciberseguridad en entornos de las tecnologías de la información': 'CETI',
+};
+
 /**
- * Formats an ALL-CAPS municipality or province name into natural Title Case.
+ * Formats an ALL-CAPS municipality, province, or street address into natural Title Case.
  * Example: "COFRENTES" -> "Cofrentes"
  * Example: "CASTELLÓ DE LA PLANA" -> "Castelló de la Plana"
- * Example: "L'ALCORA" -> "L'Alcora"
+ * Example: "CARRER ZONA ESCOLAR, S/N" -> "Carrer Zona Escolar, S/N"
  */
 export function formatLocationName(rawLocation: string): string {
   if (!rawLocation) return '';
-  // If dual bilingual province like "VALENCIA/VALÈNCIA", take the first part cleanly
-  const primary = rawLocation.split('/')[0].trim();
+  // Only split on '/' if it's a bilingual province or municipality name (not "S/N" or "C/")
+  const isBilingualLocation = /^(VALENCIA|ALICANTE|CASTELL)/i.test(rawLocation) && rawLocation.includes('/');
+  const primary = isBilingualLocation ? rawLocation.split('/')[0].trim() : rawLocation.trim();
   return formatSchoolName(primary);
 }
 
@@ -179,8 +208,29 @@ export function getMunicipalitySlug(municipality: string): string {
   return cleanTextForSlug(municipality);
 }
 
+export function getProvinceSlug(province: string): string {
+  if (!province) return '';
+  const upper = province.toUpperCase();
+  if (upper.includes('VALENCIA') || upper.includes('VALÈNCIA')) return 'valencia';
+  if (upper.includes('ALICANTE') || upper.includes('ALACANT')) return 'alicante';
+  if (upper.includes('CASTELL')) return 'castellon';
+  return cleanTextForSlug(province.split('/')[0]);
+}
+
 export function getFpFamilySlug(family: string): string {
   return cleanTextForSlug(family);
+}
+
+export function getFpCycleAcronym(cycleName: string): string | null {
+  if (!cycleName) return null;
+  const key = cycleName.trim().toLowerCase();
+  return FP_CYCLE_ACRONYMS[key] || null;
+}
+
+export function getFpCycleSlug(cycle: { grade: string; name: string }): string {
+  const acronym = getFpCycleAcronym(cycle.name);
+  const base = `${cycle.grade}-${cycle.name}${acronym ? `-${acronym}` : ''}`;
+  return cleanTextForSlug(base);
 }
 
 export function extractIdFromSlug(slugOrId: string): string {
