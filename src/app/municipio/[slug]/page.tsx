@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getCenters } from '@/lib/api';
-import { getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
+import { formatLocationName, formatSchoolName, getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
 import { Building, ChevronLeft, ChevronRight, GraduationCap, MapPin, ArrowRight, Globe, Phone, BookOpen } from 'lucide-react';
 
 export const revalidate = 86400; // Revalidate every 24 hours
@@ -37,13 +37,13 @@ export async function generateMetadata({
     };
   }
 
-  const municipalityName = muniCenters[0].municipality;
-  const provinceClean = muniCenters[0].province?.split('/')[0]?.trim() || 'Comunitat Valenciana';
+  const municipalityName = formatLocationName(muniCenters[0].municipality);
+  const provinceClean = formatLocationName(muniCenters[0].province || 'Comunitat Valenciana');
   const publicCount = muniCenters.filter((c) => c.type === 'Público').length;
   const concertedPrivateCount = muniCenters.length - publicCount;
   const fpCount = muniCenters.filter((c) => c.levels?.includes('FP') || (c.fpCycles && c.fpCycles.length > 0)).length;
 
-  const title = `Colegios, Institutos y FP en ${municipalityName} (2026/2027) | InfoEdu CV`;
+  const title = `Colegios, Institutos y FP en ${municipalityName} (2026/27) - InfoEdu CV`;
   const description = `Guía oficial de los ${muniCenters.length} centros educativos en ${municipalityName} (${provinceClean}): ${publicCount} públicos, ${concertedPrivateCount} concertados/privados y ${fpCount} centros con FP. Teléfono, dirección y web GVA.`;
 
   return {
@@ -109,9 +109,9 @@ export default async function MunicipioPage({
     notFound();
   }
 
-  const municipalityName = muniCenters[0].municipality;
+  const municipalityName = formatLocationName(muniCenters[0].municipality);
   const provinceRaw = muniCenters[0].province;
-  const provinceClean = provinceRaw?.split('/')[0]?.trim() || 'Comunitat Valenciana';
+  const provinceClean = formatLocationName(provinceRaw || 'Comunitat Valenciana');
 
   const publicCount = muniCenters.filter((c) => c.type === 'Público').length;
   const concertedCount = muniCenters.filter((c) => c.type === 'Concertado').length;
@@ -354,7 +354,7 @@ export default async function MunicipioPage({
 
                     <h3 className="text-lg font-black text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors mb-3 leading-snug">
                       <Link href={`/centro/${centerSlug}`} className="hover:underline">
-                        {center.name}
+                        {formatSchoolName(center.name)}
                       </Link>
                     </h3>
 
@@ -362,7 +362,7 @@ export default async function MunicipioPage({
                       <p className="flex items-start gap-2">
                         <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                         <span>
-                          {center.address} ({center.zipCode} {center.municipality})
+                          {formatSchoolName(center.address)} ({center.zipCode} {municipalityName})
                         </span>
                       </p>
                       {center.phone && (

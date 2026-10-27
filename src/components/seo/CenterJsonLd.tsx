@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Center, FPCycle } from '@/types';
-import { cleanTextForSlug, getCenterSlug, getMunicipalitySlug } from '@/lib/slug';
+import { cleanTextForSlug, formatLocationName, formatSchoolName, getCenterSlug, getMunicipalitySlug } from '@/lib/slug';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://info-edu-cv.vercel.app';
 
@@ -48,7 +48,7 @@ function buildSameAsLinks(center: Center): string[] {
   return Array.from(new Set(links));
 }
 
-function buildCourseNodes(center: Center, centerUrl: string, orgId: string) {
+function buildCourseNodes(center: Center, centerUrl: string, orgId: string, formattedName: string, formattedMuni: string) {
   if (!center.fpCycles || center.fpCycles.length === 0) return [];
 
   return center.fpCycles
@@ -59,7 +59,7 @@ function buildCourseNodes(center: Center, centerUrl: string, orgId: string) {
         '@type': 'EducationalOccupationalProgram',
         '@id': `${centerUrl}#fp-${cycleSlug}`,
         name: `${cycle.grade} en ${cycle.name}`,
-        description: `Ciclo formativo de ${cycle.grade} en ${cycle.name} (Familia profesional: ${cycle.family}) impartido en ${center.name}, ${center.municipality}.`,
+        description: `Ciclo formativo de ${cycle.grade} en ${cycle.name} (Familia profesional: ${cycle.family}) impartido en ${formattedName}, ${formattedMuni}.`,
         educationalProgramMode: 'presencial',
         educationalCredentialAwarded:
           cycle.grade === 'Grado Superior'
@@ -90,7 +90,9 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
   const canonicalSlug = getCenterSlug(center);
   const centerUrl = `${BASE_URL}/centro/${canonicalSlug}`;
   const orgId = `${centerUrl}#organization`;
-  const provinceClean = center.province?.split('/')[0]?.trim() || 'Comunitat Valenciana';
+  const formattedName = formatSchoolName(center.name);
+  const formattedMuni = formatLocationName(center.municipality || 'Comunitat Valenciana');
+  const provinceClean = formatLocationName(center.province || 'Comunitat Valenciana');
   const muniSlug = getMunicipalitySlug(center.municipality || '');
 
   // Construcción condicional de PostalAddress evitando campos vacíos
@@ -98,8 +100,8 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
   const addressNode = hasAddressData
     ? {
         '@type': 'PostalAddress',
-        ...(center.address?.trim() ? { streetAddress: center.address.trim() } : {}),
-        ...(center.municipality?.trim() ? { addressLocality: center.municipality.trim() } : {}),
+        ...(center.address?.trim() ? { streetAddress: formatSchoolName(center.address.trim()) } : {}),
+        ...(center.municipality?.trim() ? { addressLocality: formattedMuni } : {}),
         ...(center.zipCode?.trim() ? { postalCode: center.zipCode.trim() } : {}),
         addressRegion: provinceClean,
         addressCountry: 'ES',
@@ -116,17 +118,17 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
     : undefined;
 
   const sameAs = buildSameAsLinks(center);
-  const programNodes = buildCourseNodes(center, centerUrl, orgId);
+  const programNodes = buildCourseNodes(center, centerUrl, orgId, formattedName, formattedMuni);
 
   const educationalOrgNode: Record<string, unknown> = {
     '@type': getSchemaOrgType(center),
     '@id': orgId,
     identifier: center.id,
-    name: center.name,
-    description: `Centro educativo ${center.type?.toLowerCase() || ''} en ${center.municipality || provinceClean} (${provinceClean}).`,
+    name: formattedName,
+    description: `Centro educativo ${center.type?.toLowerCase() || ''} en ${formattedMuni} (${provinceClean}).`,
     url: centerUrl,
-    image: `${BASE_URL}/logo.png`,
-    logo: `${BASE_URL}/logo.png`,
+    image: `${BASE_URL}/icon-512.png`,
+    logo: `${BASE_URL}/icon-512.png`,
     isAccessibleForFree: center.type === 'Público',
     additionalProperty: [
       {
@@ -152,7 +154,7 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
     {
       '@type': 'ListItem',
       position: 1,
-      name: 'Inicio',
+      name: 'InfoEdu CV',
       item: BASE_URL,
     },
     ...(provinceClean
@@ -170,7 +172,7 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
           {
             '@type': 'ListItem',
             position: provinceClean ? 3 : 2,
-            name: center.municipality,
+            name: formattedMuni,
             item: `${BASE_URL}/municipio/${muniSlug}`,
           },
         ]
@@ -178,7 +180,7 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
     {
       '@type': 'ListItem',
       position: (provinceClean ? 1 : 0) + (center.municipality && muniSlug ? 1 : 0) + 2,
-      name: center.name,
+      name: formattedName,
       item: centerUrl,
     },
   ];
@@ -204,28 +206,28 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
     mainEntity: [
       {
         '@type': 'Question',
-        name: `¿El centro ${center.name} de ${center.municipality} es público, concertado o privado?`,
+        name: `¿El centro ${formattedName} de ${formattedMuni} es público, concertado o privado?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `${center.name} es un centro educativo de titularidad ${center.type.toLowerCase()} inscrito en el Registro Oficial de Centros Docentes de la Generalitat Valenciana (GVA) con el código oficial ${center.id}.`,
+          text: `${formattedName} es un centro educativo de titularidad ${center.type.toLowerCase()} inscrito en el Registro Oficial de Centros Docentes de la Generalitat Valenciana (GVA) con el código oficial ${center.id}.`,
         },
       },
       {
         '@type': 'Question',
-        name: `¿Qué niveles educativos y ciclos de FP se pueden estudiar en ${center.name}?`,
+        name: `¿Qué niveles educativos y ciclos de FP se pueden estudiar en ${formattedName}?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `En ${center.name} (${center.municipality}) se imparten las enseñanzas de: ${
+          text: `En ${formattedName} (${formattedMuni}) se imparten las enseñanzas de: ${
             center.levels && center.levels.length > 0 ? center.levels.join(', ') : 'enseñanza reglada GVA'
           }.${fpSummaryText}`,
         },
       },
       {
         '@type': 'Question',
-        name: `¿Cuál es el teléfono, dirección y web oficial de ${center.name}?`,
+        name: `¿Cuál es el teléfono, dirección y web oficial de ${formattedName}?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `${center.name} está ubicado en ${center.address}, código postal ${center.zipCode} de ${center.municipality} (${provinceClean}).${
+          text: `${formattedName} está ubicado en ${formatSchoolName(center.address)}, código postal ${center.zipCode} de ${formattedMuni} (${provinceClean}).${
             center.phone ? ` Su teléfono de contacto oficial es ${center.phone}.` : ''
           }${center.url ? ` Puedes acceder a su portal web oficial en ${center.url}.` : ''}`,
         },
@@ -234,10 +236,10 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
         ? [
             {
               '@type': 'Question',
-              name: `¿Cuántos colegios e institutos hay en ${center.municipality} además de ${center.name}?`,
+              name: `¿Cuántos colegios e institutos hay en ${formattedMuni} además de ${formattedName}?`,
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: `${center.name} forma parte de los ${municipalityStats.totalCenters} centros educativos activos en ${center.municipality} (${municipalityStats.publicCount} públicos y ${municipalityStats.concertedPrivateCount} concertados o privados).`,
+                text: `${formattedName} forma parte de los ${municipalityStats.totalCenters} centros educativos activos en ${formattedMuni} (${municipalityStats.publicCount} públicos y ${municipalityStats.concertedPrivateCount} concertados o privados).`,
               },
             },
           ]

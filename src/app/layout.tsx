@@ -26,9 +26,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  applicationName: "InfoEdu CV",
   title: {
-    default: "InfoEdu CV | Buscador de Colegios, Institutos y FP de la Comunitat Valenciana",
-    template: "%s | Guía de Centros InfoEdu CV"
+    default: "InfoEdu CV - Buscador de Colegios, Institutos y FP de la Comunitat Valenciana",
+    template: "%s - InfoEdu CV"
   },
   description: "Buscador oficial de colegios públicos, concertados y privados en Valencia, Alicante y Castellón. Encuentra toda la oferta de FP, Institutos y centros educativos de la GVA con mapa interactivo.",
   keywords: [
@@ -49,12 +50,6 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://info-edu-cv.vercel.app'),
   alternates: {
     canonical: '/',
-    languages: {
-      'es': '/',
-      'ca-ES': '/?lang=va',
-      'en': '/?lang=en',
-      'x-default': '/',
-    },
   },
   robots: {
     index: true,
@@ -68,35 +63,65 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "InfoEdu CV | Encuentra el mejor centro educativo en la Comunitat Valenciana",
+    title: "InfoEdu CV - Encuentra el mejor centro educativo en la Comunitat Valenciana",
     description: "Guía oficial y mapa de todos los colegios, institutos y centros de FP de la GVA. Elige el mejor futuro para tus hijos.",
     siteName: "InfoEdu CV",
     locale: "es_ES",
-    alternateLocale: ["ca_ES", "en_US"],
     type: "website",
     images: [
       {
-        url: '/logo.png',
-        width: 1200,
-        height: 630,
-        alt: 'InfoEdu CV | Buscador de Centros Educativos de la Comunitat Valenciana',
+        url: '/icon-512.png',
+        width: 512,
+        height: 512,
+        alt: 'InfoEdu CV - Buscador de Centros Educativos de la Comunitat Valenciana',
       }
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "InfoEdu CV | Guía de Centros Educativos de la Comunitat Valenciana",
+    title: "InfoEdu CV - Guía de Centros Educativos de la Comunitat Valenciana",
     description: "Buscador de colegios e institutos de la GVA. Filtros por provincia, nivel y titularidad con localización exacta.",
     creator: "@infoeducv",
-    images: ['/logo.png'],
+    images: ['/icon-512.png'],
   },
   icons: {
-    icon: '/icon.ico',
-    apple: '/logo.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/icon.ico', sizes: 'any' },
+    ],
+    shortcut: ['/icon.ico'],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   verification: {
     google: 'eYUDCfEfbBEt0co6I_miaE3oSNsAHNzLz3sDzmCvuWY',
   },
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://info-edu-cv.vercel.app/#website",
+  "name": "InfoEdu CV",
+  "alternateName": [
+    "InfoEdu Comunitat Valenciana",
+    "Guía de Centros InfoEdu CV",
+    "Info Edu CV"
+  ],
+  "url": "https://info-edu-cv.vercel.app/",
+  "inLanguage": "es-ES",
+  "description": "Buscador de colegios, institutos y centros de Formación Profesional (FP) de la Comunitat Valenciana.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://info-edu-cv.vercel.app/?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
 };
 
 export default function RootLayout({
@@ -107,6 +132,12 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd),
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

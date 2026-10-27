@@ -7,7 +7,7 @@ import { Center } from '@/types';
 import MapWrapper from './MapWrapper';
 import { Search, Map as MapIcon, List as ListIcon, GraduationCap, Building, MapPin, ArrowRight, Navigation, Share2, X, Globe } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { getCenterSlug } from '@/lib/slug';
+import { formatLocationName, formatSchoolName, getCenterSlug } from '@/lib/slug';
 
 interface DirectoryProps {
   initialCenters: Center[];
@@ -663,7 +663,7 @@ export default function Directory({ initialCenters, totalCount }: DirectoryProps
                       </div>
                       
                       <div className="mb-5 flex flex-col justify-center min-h-[4rem]">
-                        <h3 className="text-xl font-black text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2 tracking-tight leading-none">{center.name}</h3>
+                        <h3 className="text-xl font-black text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2 tracking-tight leading-none">{formatSchoolName(center.name)}</h3>
                       </div>
                       
                       <div className="space-y-3 mb-6 flex-grow">
@@ -675,7 +675,7 @@ export default function Directory({ initialCenters, totalCount }: DirectoryProps
                             <span className="font-bold text-amber-700 dark:text-amber-400 block text-xs uppercase tracking-wider mb-0.5 opacity-80">
                               {t.cards.location}
                             </span>
-                            {center.municipality} <span className="text-gray-400 dark:text-gray-500 font-normal">({center.province.split('/')[0]})</span>
+                            {formatLocationName(center.municipality)} <span className="text-gray-400 dark:text-gray-500 font-normal">({formatLocationName(center.province)})</span>
                           </p>
                         </div>
                       </div>

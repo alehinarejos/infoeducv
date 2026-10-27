@@ -30,12 +30,6 @@ export async function generateMetadata({
   return {
     alternates: {
       canonical: '/',
-      languages: {
-        es: '/',
-        'ca-ES': '/?lang=va',
-        en: '/?lang=en',
-        'x-default': '/',
-      },
     },
     robots: hasFilterParams
       ? {
@@ -119,37 +113,9 @@ export default async function Home({
     })),
   }));
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "InfoEdu CV",
-    "alternateName": [
-      "Info Edu CV",
-      "infoeducv",
-      "info-edu-cv",
-      "InfoEdu Comunitat Valenciana",
-      "InfoEdu Valencian Community"
-    ],
-    "url": "https://info-edu-cv.vercel.app",
-    "inLanguage": ["es", "ca", "en"],
-    "description": "Buscador de colegios, institutos y centros de FP de la Comunitat Valenciana. Cercador de centres educatius. Search schools in the Valencian Community.",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": "https://info-edu-cv.vercel.app/?q={search_term_string}"
-      },
-      "query-input": "required name=search_term_string"
-    }
-  };
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <h1 className="sr-only">Buscador de Centros Educativos y FP de la Comunitat Valenciana | Cercador de Centres Educatius | InfoEdu CV</h1>
+      <h1 className="sr-only">Buscador de Centros Educativos y FP de la Comunitat Valenciana - InfoEdu CV</h1>
       <Suspense fallback={<div className="flex items-center justify-center h-[calc(100vh-80px)] font-bold text-gray-500">Cargando directorio...</div>}>
         <Directory initialCenters={initialCenters} totalCount={centers.length} />
       </Suspense>

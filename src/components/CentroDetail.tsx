@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, MapPin, Phone, Globe, BookOpen, GraduationCap, ExternalLink, ShieldCheck, ArrowRight, Star, MessageSquare, Info, HelpCircle } from 'lucide-react';
 import MapWrapper from '@/components/MapWrapper';
 import { useLanguage } from '@/context/LanguageContext';
-import { getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
+import { formatLocationName, formatSchoolName, getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
 import SocialMediaSection from '@/components/SocialMediaSection';
 import type { MunicipalityStats } from '@/components/seo/CenterJsonLd';
 
@@ -17,7 +17,9 @@ interface CentroDetailProps {
 
 export default function CentroDetail({ center, relatedCenters = [], municipalityStats }: CentroDetailProps) {
   const { t } = useLanguage();
-  const provinceName = center.province.split('/')[0];
+  const displayCenterName = formatSchoolName(center.name);
+  const displayMunicipality = formatLocationName(center.municipality || '');
+  const provinceName = formatLocationName(center.province || '');
   const municipalitySlug = getMunicipalitySlug(center.municipality || '');
 
   const getNaturalezaBadge = (type: string) => {
@@ -98,11 +100,11 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
             </Link>
             <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
             <Link href={municipalitySlug ? `/municipio/${municipalitySlug}` : `/?q=${encodeURIComponent(center.municipality)}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-              {center.municipality}
+              {displayMunicipality}
             </Link>
             <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
             <span className="text-gray-700 dark:text-gray-300 font-bold truncate max-w-[200px] sm:max-w-xs">
-              {center.name}
+              {displayCenterName}
             </span>
           </nav>
         </div>
@@ -132,7 +134,7 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
                     </span>
                   </div>
                   <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-2 leading-tight tracking-tight">
-                    {center.name}
+                    {displayCenterName}
                   </h1>
                 </div>
               </div>
@@ -491,7 +493,7 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {t.centerDetail.relatedSchoolsTitle} <span className="text-primary-600 dark:text-primary-400">{center.municipality}</span>
+                  {t.centerDetail.relatedSchoolsTitle} <span className="text-primary-600 dark:text-primary-400">{displayMunicipality}</span>
                 </h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {t.centerDetail.officialSourceNote}
@@ -501,7 +503,7 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
                 href={municipalitySlug ? `/municipio/${municipalitySlug}` : `/?q=${encodeURIComponent(center.municipality)}`}
                 className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700 dark:text-amber-400 transition-colors"
               >
-                <span>{t.centerDetail.viewAllInMunicipality} {center.municipality}</span>
+                <span>{t.centerDetail.viewAllInMunicipality} {displayMunicipality}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -527,10 +529,10 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
                         )}
                       </div>
                       <h3 className="font-bold text-sm text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
-                        {rel.name}
+                        {formatSchoolName(rel.name)}
                       </h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
-                        {rel.address}
+                        {formatSchoolName(rel.address)}
                       </p>
                     </div>
 
@@ -553,18 +555,18 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
                 <HelpCircle className="w-5 h-5" />
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
-                Preguntas frecuentes sobre {center.name} (Curso 2026/2027)
+                Preguntas frecuentes sobre {displayCenterName} (Curso 2026/2027)
               </h2>
             </div>
 
             {municipalityStats && (
               <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                El centro educativo <strong>{center.name}</strong> (código GVA <code>{center.id}</code>) es uno de los{' '}
+                El centro educativo <strong>{displayCenterName}</strong> (código GVA <code>{center.id}</code>) es uno de los{' '}
                 <Link
                   href={`/municipio/${municipalitySlug}`}
                   className="font-bold text-primary-600 dark:text-primary-400 hover:underline"
                 >
-                  {municipalityStats.totalCenters} centros docentes de {center.municipality}
+                  {municipalityStats.totalCenters} centros docentes de {displayMunicipality}
                 </Link>{' '}
                 ({municipalityStats.publicCount} públicos y {municipalityStats.concertedPrivateCount} concertados o privados, con {municipalityStats.fpCentersCount} centros que imparten Formación Profesional o secundaria en la localidad).
               </p>
@@ -573,16 +575,16 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="glass-card p-5 rounded-xl">
                 <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
-                  ¿El centro {center.name} es público, concertado o privado?
+                  ¿El centro {displayCenterName} es público, concertado o privado?
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                  <strong>{center.name}</strong> es un centro de titularidad <strong>{center.type.toLowerCase()}</strong> inscrito en el Registro Oficial de Centros Docentes de la Conselleria de Educación de la Generalitat Valenciana (GVA) con el código identificativo <strong>{center.id}</strong>.
+                  <strong>{displayCenterName}</strong> es un centro de titularidad <strong>{center.type.toLowerCase()}</strong> inscrito en el Registro Oficial de Centros Docentes de la Conselleria de Educación de la Generalitat Valenciana (GVA) con el código identificativo <strong>{center.id}</strong>.
                 </p>
               </div>
 
               <div className="glass-card p-5 rounded-xl">
                 <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
-                  ¿Qué niveles educativos y ciclos de FP imparte {center.name}?
+                  ¿Qué niveles educativos y ciclos de FP imparte {displayCenterName}?
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                   En el curso 2026/2027, el centro ofrece las etapas de{' '}
@@ -597,10 +599,10 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
 
               <div className="glass-card p-5 rounded-xl">
                 <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
-                  ¿Cuál es el teléfono, dirección y web oficial de {center.name}?
+                  ¿Cuál es el teléfono, dirección y web oficial de {displayCenterName}?
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Se encuentra en <strong>{center.address}</strong> ({center.zipCode} {center.municipality}, {provinceName}).
+                  Se encuentra en <strong>{formatSchoolName(center.address)}</strong> ({center.zipCode} {displayMunicipality}, {provinceName}).
                   {center.phone ? ` Su teléfono directo de secretaría/contacto es el ${center.phone}.` : ''}
                   {center.url ? ` Dispone de acceso directo a su portal web oficial en la parte superior de esta ficha.` : ''}
                 </p>
@@ -608,7 +610,7 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
 
               <div className="glass-card p-5 rounded-xl">
                 <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
-                  ¿Cómo comparar {center.name} con otros centros de {center.municipality}?
+                  ¿Cómo comparar {displayCenterName} con otros centros de {displayMunicipality}?
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                   Puedes consultar el listado completo de{' '}
@@ -616,7 +618,7 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
                     href={`/municipio/${municipalitySlug}`}
                     className="font-bold text-amber-600 dark:text-amber-400 hover:underline"
                   >
-                    colegios, institutos y centros de FP en {center.municipality}
+                    colegios, institutos y centros de FP en {displayMunicipality}
                   </Link>{' '}
                   para comparar titularidad, distancia desde tu código postal y oferta de ciclos formativos.
                 </p>

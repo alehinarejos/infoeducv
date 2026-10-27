@@ -2,24 +2,34 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'InfoEdu Comunitat Valenciana',
+    name: 'InfoEdu CV - Guía de Centros Educativos Comunitat Valenciana',
     short_name: 'InfoEdu CV',
     description: 'Buscador de centros educativos y FP de la Comunitat Valenciana',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#1d4ed8',
+    theme_color: '#114b5f',
     icons: [
       {
-        src: '/icon.ico',
-        sizes: 'any',
-        type: 'image/x-icon',
+        src: '/icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
       },
       {
-        src: '/logo.svg',
+        src: '/icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
+      {
+        src: '/favicon.svg',
         sizes: 'any',
         type: 'image/svg+xml',
-        purpose: 'maskable'
+        purpose: 'maskable',
+      },
+      {
+        src: '/icon.ico',
+        sizes: '256x256',
+        type: 'image/x-icon',
       },
     ],
   };

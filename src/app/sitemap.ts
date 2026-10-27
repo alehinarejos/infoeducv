@@ -34,13 +34,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: dailyLastMod,
     changeFrequency: 'daily',
     priority: 1.0,
-    alternates: {
-      languages: {
-        es: baseUrl,
-        'ca-ES': `${baseUrl}?lang=va`,
-        en: `${baseUrl}?lang=en`,
-      },
-    },
   };
 
   try {
@@ -69,13 +62,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: dailyLastMod,
         changeFrequency: 'monthly',
         priority: hasFp ? 0.85 : 0.8,
-        alternates: {
-          languages: {
-            es: `${baseUrl}/centro/${slug}`,
-            'ca-ES': `${baseUrl}/centro/${slug}?lang=va`,
-            en: `${baseUrl}/centro/${slug}?lang=en`,
-          },
-        },
       };
     });
 

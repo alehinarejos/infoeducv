@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getCenters } from '@/lib/api';
-import { getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
+import { formatLocationName, formatSchoolName, getCenterSlug, getFpFamilySlug, getMunicipalitySlug } from '@/lib/slug';
 import { Building, ChevronLeft, ChevronRight, GraduationCap, MapPin, ArrowRight, BookOpen } from 'lucide-react';
 
 export const revalidate = 86400; // Revalidate every 24 hours
@@ -316,13 +316,13 @@ export default async function FpFamilyPage({
                         className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
                       >
                         <MapPin className="w-3 h-3" />
-                        {center.municipality}
+                        {formatLocationName(center.municipality)}
                       </Link>
                     </div>
 
                     <h3 className="text-lg font-black text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors mb-3 leading-snug">
                       <Link href={`/centro/${centerSlug}`} className="hover:underline">
-                        {center.name}
+                        {formatSchoolName(center.name)}
                       </Link>
                     </h3>
 
