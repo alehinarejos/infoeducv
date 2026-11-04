@@ -80,9 +80,9 @@ export async function generateMetadata({
       locale: 'es_ES',
       images: [
         {
-          url: '/logo.png',
-          width: 1200,
-          height: 630,
+          url: '/icon-512.png',
+          width: 512,
+          height: 512,
           alt: `Centros educativos en ${municipalityName} - InfoEdu CV`,
         },
       ],
@@ -91,7 +91,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title,
       description,
-      images: ['/logo.png'],
+      images: ['/icon-512.png'],
     },
   };
 }
@@ -405,7 +405,7 @@ export default async function MunicipioPage({
                   href={`/municipio/${m.slug}`}
                   className="glass-card p-3 rounded-xl flex items-center justify-between text-xs font-bold text-gray-800 dark:text-gray-200 hover:border-amber-500/50 transition-all"
                 >
-                  <span className="truncate">{m.name}</span>
+                  <span className="truncate">{formatLocationName(m.name)}</span>
                   <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-primary-500/10 text-primary-600 dark:text-primary-400 shrink-0">
                     {m.count} centros
                   </span>

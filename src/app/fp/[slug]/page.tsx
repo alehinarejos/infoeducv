@@ -87,9 +87,9 @@ export async function generateMetadata({
       locale: 'es_ES',
       images: [
         {
-          url: '/logo.png',
-          width: 1200,
-          height: 630,
+          url: '/icon-512.png',
+          width: 512,
+          height: 512,
           alt: `FP ${familyName} en la Comunitat Valenciana - InfoEdu CV`,
         },
       ],
@@ -98,7 +98,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title,
       description,
-      images: ['/logo.png'],
+      images: ['/icon-512.png'],
     },
   };
 }

@@ -47,6 +47,7 @@ export default function FAQ() {
             >
               <button
                 className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
+                aria-expanded={openIndex === index}
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
                 <span className="font-bold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
@@ -59,13 +60,11 @@ export default function FAQ() {
                 )}
               </button>
               
-              {openIndex === index && (
-                <div className="px-6 pb-5 animate-fade-in">
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
+              <div className={openIndex === index ? 'px-6 pb-5 animate-fade-in' : 'hidden'}>
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {faq.answer}
+                </p>
+              </div>
             </div>
           ))}
         </div>

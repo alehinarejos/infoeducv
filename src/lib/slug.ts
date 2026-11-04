@@ -126,18 +126,21 @@ function capitalizeSingleWord(word: string, isFirstWord: boolean): string {
 export function formatSchoolName(rawName: string): string {
   if (!rawName) return '';
   const trimmed = rawName.trim();
+  const tokens = trimmed.split(/\s+/);
+  const firstTokenClean = tokens[0]?.toUpperCase().replace(/[(),.:;]/g, '') || '';
+  const firstIsAcronym = UPPERCASE_ACRONYMS.has(firstTokenClean) || /^([A-Z]\.){2,}$/i.test(tokens[0] || '');
 
-  return trimmed
-    .split(/\s+/)
+  return tokens
     .map((token, idx) => {
+      const isStartOfName = idx === 0 || (idx === 1 && firstIsAcronym);
       // Handle hyphenated words like VILA-REAL or SANT-VICENT
       if (token.includes('-')) {
         return token
           .split('-')
-          .map((part, partIdx) => capitalizeSingleWord(part, idx === 0 && partIdx === 0))
+          .map((part, partIdx) => capitalizeSingleWord(part, isStartOfName && partIdx === 0))
           .join('-');
       }
-      return capitalizeSingleWord(token, idx === 0);
+      return capitalizeSingleWord(token, isStartOfName);
     })
     .join(' ');
 }
@@ -171,7 +174,10 @@ const FP_CYCLE_ACRONYMS: Record<string, string> = {
 
 /**
  * Formats an ALL-CAPS municipality, province, or street address into natural Title Case.
- * Example: "COFRENTES" -> "Cofrentes"
+ * Also normalizes GVA inverted parenthesized articles:
+ * Example: "POBLA DE VALLBONA (LA)" -> "La Pobla de Vallbona"
+ * Example: "ELIANA (L')" -> "L'Eliana"
+ * Example: "CAMPELLO (EL)" -> "El Campello"
  * Example: "CASTELLÓ DE LA PLANA" -> "Castelló de la Plana"
  * Example: "CARRER ZONA ESCOLAR, S/N" -> "Carrer Zona Escolar, S/N"
  */
@@ -180,6 +186,19 @@ export function formatLocationName(rawLocation: string): string {
   // Only split on '/' if it's a bilingual province or municipality name (not "S/N" or "C/")
   const isBilingualLocation = /^(VALENCIA|ALICANTE|CASTELL)/i.test(rawLocation) && rawLocation.includes('/');
   const primary = isBilingualLocation ? rawLocation.split('/')[0].trim() : rawLocation.trim();
+
+  // Handle inverted trailing articles in GVA municipality names, e.g. "POBLA DE VALLBONA (LA)" or "ELIANA (L')"
+  const trailingArticleMatch = primary.match(/^(.+?)\s*\((EL|LA|LOS|LAS|ELS|LES|L['’])\)$/i);
+  if (trailingArticleMatch) {
+    const bodyFormatted = formatSchoolName(trailingArticleMatch[1].trim());
+    const rawArticle = trailingArticleMatch[2];
+    if (/^l['’]$/i.test(rawArticle)) {
+      return `L'${bodyFormatted}`;
+    }
+    const articleFormatted = rawArticle.charAt(0).toUpperCase() + rawArticle.slice(1).toLowerCase();
+    return `${articleFormatted} ${bodyFormatted}`;
+  }
+
   return formatSchoolName(primary);
 }
 
