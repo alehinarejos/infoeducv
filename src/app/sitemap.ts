@@ -6,7 +6,7 @@ export const revalidate = 86400; // Revalidate sitemap every 24 hours
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://info-edu-cv.vercel.app';
-  const stableLastMod = new Date('2026-10-27');
+  const stableLastMod = new Date('2026-11-04');
 
   const legalEntries: MetadataRoute.Sitemap = [
     {
