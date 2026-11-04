@@ -114,8 +114,6 @@ export default async function ProvinciaPage({
   const provinceName = formatLocationName(rawProvince || '');
 
   const publicCount = provCenters.filter((c) => c.type === 'Público').length;
-  const concertedCount = provCenters.filter((c) => c.type === 'Concertado').length;
-  const privateCount = provCenters.filter((c) => c.type === 'Privado').length;
   const fpCount = provCenters.filter((c) => c.levels?.includes('FP') || (c.fpCycles && c.fpCycles.length > 0)).length;
 
   // Group municipalities in this province
@@ -196,27 +194,6 @@ export default async function ProvinciaPage({
           name: `Colegios e Institutos en ${m.displayName} (${m.total} centros)`,
           url: `${BASE_URL}/municipio/${m.slug}`,
         })),
-      },
-      {
-        '@type': 'FAQPage',
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: `¿Cuántos colegios e institutos hay en la provincia de ${provinceName}?`,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: `La provincia de ${provinceName} cuenta con ${provCenters.length} centros educativos oficiales registrados en la GVA repartidos en ${allMunicipalities.length} municipios: ${publicCount} centros públicos, ${concertedCount} concertados y ${privateCount} privados.`,
-            },
-          },
-          {
-            '@type': 'Question',
-            name: `¿Cuántos institutos imparten Formación Profesional (FP) en la provincia de ${provinceName}?`,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: `En la provincia de ${provinceName} existen ${fpCount} centros e institutos acreditados que imparten ciclos formativos de Formación Profesional (Grado Básico, Grado Medio y Grado Superior).`,
-            },
-          },
-        ],
       },
     ],
   };

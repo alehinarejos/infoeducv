@@ -99,10 +99,10 @@ export async function generateMetadata({
       canonical: `/fp/ciclo/${slug}`,
     },
     robots: {
-      index: true,
+      index: matchingCenters.length >= 2,
       follow: true,
       googleBot: {
-        index: true,
+        index: matchingCenters.length >= 2,
         follow: true,
         'max-image-preview': 'large',
         'max-snippet': -1,
@@ -262,27 +262,6 @@ export default async function FpCyclePage({
             },
           },
         })),
-      },
-      {
-        '@type': 'FAQPage',
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: `¿Dónde estudiar ${cycleGrade} en ${cycleName}${acronymBadge} en la Comunitat Valenciana?`,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: `Puedes estudiar el ciclo formativo de ${cycleGrade} en ${cycleName}${acronymBadge} en ${matchingCenters.length} centros educativos acreditados de la Comunitat Valenciana: ${valenciaCenters.length} en la provincia de Valencia, ${alicanteCenters.length} en Alicante y ${castellonCenters.length} en Castellón.`,
-            },
-          },
-          {
-            '@type': 'Question',
-            name: `¿Cuántos institutos públicos imparten ${cycleName}${acronymBadge}?`,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: `De los ${matchingCenters.length} centros que imparten ${cycleGrade} en ${cycleName}${acronymBadge}, ${publicCount} son institutos de titularidad pública de la Generalitat Valenciana (GVA) y ${matchingCenters.length - publicCount} son centros concertados o privados.`,
-            },
-          },
-        ],
       },
     ],
   };

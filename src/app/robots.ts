@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/centro/', '/municipio/', '/fp/'],
+        allow: ['/', '/centro/', '/provincia/', '/municipio/', '/fp/'],
         disallow: [
           '/api/',
           '/_next/data/',

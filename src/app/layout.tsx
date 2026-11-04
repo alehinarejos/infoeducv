@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
-import { Suspense } from "react";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -182,18 +181,16 @@ export default function RootLayout({
         </div>
 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Suspense fallback={null}>
-            <LanguageProvider>
-              <div className="relative z-10 flex flex-col min-h-screen w-full">
-                <Header />
-                <main className="flex-grow flex flex-col relative z-10">
-                  {children}
-                </main>
-                <Footer />
-                <CookieBanner />
-              </div>
-            </LanguageProvider>
-          </Suspense>
+          <LanguageProvider>
+            <div className="relative z-10 flex flex-col min-h-screen w-full">
+              <Header />
+              <main className="flex-grow flex flex-col relative z-10">
+                {children}
+              </main>
+              <Footer />
+              <CookieBanner />
+            </div>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

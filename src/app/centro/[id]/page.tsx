@@ -28,7 +28,10 @@ function buildOptimizedCenterTitle(center: Center): string {
 
   // Evitamos repetir el municipio si ya está incluido al final del nombre del centro (ej: "CEIP Cofrentes")
   const nameIncludesMuni = name.toLowerCase().includes(muni.toLowerCase());
-  const locationPart = nameIncludesMuni ? `(${muni})` : `en ${muni}`;
+  const locationPart = nameIncludesMuni ? `(${muni})` : `(${muni})`;
+
+  const fullWithWebCandidate = `${name} ${locationPart} | ${keyOffer} y Web Oficial - InfoEdu CV`;
+  if (fullWithWebCandidate.length <= 68) return fullWithWebCandidate;
 
   const fullCandidate = `${name} ${locationPart}: ${keyOffer} - InfoEdu CV`;
   if (fullCandidate.length <= 65) return fullCandidate;
@@ -92,6 +95,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     description: description,
     keywords: [
       formattedName,
+      center.name,
       `colegio ${formattedName}`,
       `instituto ${formattedName}`,
       `fp ${formattedName}`,

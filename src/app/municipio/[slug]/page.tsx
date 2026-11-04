@@ -62,10 +62,10 @@ export async function generateMetadata({
       canonical: `/municipio/${slug}`,
     },
     robots: {
-      index: true,
+      index: muniCenters.length >= 3,
       follow: true,
       googleBot: {
-        index: true,
+        index: muniCenters.length >= 3,
         follow: true,
         'max-image-preview': 'large',
         'max-snippet': -1,
@@ -148,7 +148,7 @@ export default async function MunicipioPage({
     .sort((a, b) => b.count - a.count)
     .slice(0, 12);
 
-  // Schema.org: ItemList + BreadcrumbList + FAQPage
+  // Schema.org: ItemList + BreadcrumbList
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -184,37 +184,9 @@ export default async function MunicipioPage({
         itemListElement: muniCenters.slice(0, 100).map((center, idx) => ({
           '@type': 'ListItem',
           position: idx + 1,
-          name: center.name,
+          name: formatSchoolName(center.name),
           url: `${BASE_URL}/centro/${getCenterSlug(center)}`,
         })),
-      },
-      {
-        '@type': 'FAQPage',
-        '@id': `${BASE_URL}/municipio/${slug}#faq`,
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: `¿Cuántos colegios e institutos hay en ${municipalityName}?`,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: `En ${municipalityName} (${provinceClean}) existen actualmente ${muniCenters.length} centros educativos inscritos en el registro oficial de la Generalitat Valenciana (GVA): ${publicCount} centros públicos, ${concertedCount} centros concertados y ${privateCount} centros privados.`,
-            },
-          },
-          {
-            '@type': 'Question',
-            name: `¿Dónde estudiar Formación Profesional (FP) en ${municipalityName}?`,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text:
-                fpCenters.length > 0
-                  ? `${municipalityName} cuenta con ${fpCenters.length} centros que imparten Formación Profesional o enseñanza secundaria, incluyendo: ${fpCenters
-                      .slice(0, 5)
-                      .map((c) => c.name)
-                      .join(', ')}.`
-                  : `Puedes consultar los institutos y centros de FP más cercanos a ${municipalityName} dentro de la provincia de ${provinceClean} a través del buscador interactivo de InfoEdu CV.`,
-            },
-          },
-        ],
       },
     ],
   };

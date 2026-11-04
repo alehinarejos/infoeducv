@@ -90,7 +90,7 @@ function buildCourseNodes(center: Center, centerUrl: string, orgId: string, form
     });
 }
 
-export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLdProps) {
+export default function CenterJsonLd({ center }: CenterJsonLdProps) {
   const canonicalSlug = getCenterSlug(center);
   const centerUrl = `${BASE_URL}/centro/${canonicalSlug}`;
   const orgId = `${centerUrl}#organization`;
@@ -129,6 +129,7 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
     '@id': orgId,
     identifier: center.id,
     name: formattedName,
+    ...(center.name && center.name !== formattedName ? { alternateName: center.name } : {}),
     description: `Centro educativo ${center.type?.toLowerCase() || ''} en ${formattedMuni} (${provinceClean}).`,
     url: centerUrl,
     image: `${BASE_URL}/icon-512.png`,
@@ -195,65 +196,9 @@ export default function CenterJsonLd({ center, municipalityStats }: CenterJsonLd
     itemListElement: breadcrumbItems,
   };
 
-  // FAQPage dinámico por centro para capturar búsquedas long-tail (teléfono, código, oferta FP, titularidad)
-  const fpSummaryText =
-    center.fpCycles && center.fpCycles.length > 0
-      ? ` Además, imparte ${center.fpCycles.length} ciclos formativos oficiales de Formación Profesional (FP): ${center.fpCycles
-          .slice(0, 6)
-          .map((c) => `${c.grade} en ${c.name}`)
-          .join(', ')}.`
-      : '';
-
-  const faqNode = {
-    '@type': 'FAQPage',
-    '@id': `${centerUrl}#faq`,
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: `¿El centro ${formattedName} de ${formattedMuni} es público, concertado o privado?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `${formattedName} es un centro educativo de titularidad ${center.type.toLowerCase()} inscrito en el Registro Oficial de Centros Docentes de la Generalitat Valenciana (GVA) con el código oficial ${center.id}.`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `¿Qué niveles educativos y ciclos de FP se pueden estudiar en ${formattedName}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `En ${formattedName} (${formattedMuni}) se imparten las enseñanzas de: ${
-            center.levels && center.levels.length > 0 ? center.levels.join(', ') : 'enseñanza reglada GVA'
-          }.${fpSummaryText}`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `¿Cuál es el teléfono, dirección y web oficial de ${formattedName}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `${formattedName} está ubicado en ${formatSchoolName(center.address)}, código postal ${center.zipCode} de ${formattedMuni} (${provinceClean}).${
-            center.phone ? ` Su teléfono de contacto oficial es ${center.phone}.` : ''
-          }${center.url ? ` Puedes acceder a su portal web oficial en ${center.url}.` : ''}`,
-        },
-      },
-      ...(municipalityStats
-        ? [
-            {
-              '@type': 'Question',
-              name: `¿Cuántos colegios e institutos hay en ${formattedMuni} además de ${formattedName}?`,
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: `${formattedName} forma parte de los ${municipalityStats.totalCenters} centros educativos activos en ${formattedMuni} (${municipalityStats.publicCount} públicos y ${municipalityStats.concertedPrivateCount} concertados o privados).`,
-              },
-            },
-          ]
-        : []),
-    ],
-  };
-
   const jsonLdGraph = {
     '@context': 'https://schema.org',
-    '@graph': [educationalOrgNode, breadcrumbNode, faqNode, ...programNodes],
+    '@graph': [educationalOrgNode, breadcrumbNode, ...programNodes],
   };
 
   return (

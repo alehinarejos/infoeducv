@@ -594,85 +594,31 @@ export default function CentroDetail({ center, relatedCenters = [], municipality
           </div>
         )}
 
-        {/* Dynamic Center FAQ & Municipality Editorial Summary for Long-Tail SEO */}
-        <section className="mt-14 pt-10 border-t border-slate-200/40 dark:border-white/5">
-          <div className="glass-panel rounded-2xl p-6 sm:p-8">
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="p-2 rounded-lg bg-primary-500/10 text-primary-600 dark:text-primary-400">
-                <HelpCircle className="w-5 h-5" />
+        {/* Municipality Context Summary for Internal Linking */}
+        {municipalityStats && municipalityStats.totalCenters > 1 && (
+          <section className="mt-10 pt-8 border-t border-slate-200/40 dark:border-white/5">
+            <div className="glass-panel rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-primary-500/10 text-primary-600 dark:text-primary-400 shrink-0 mt-0.5">
+                  <HelpCircle className="w-5 h-5" />
+                </div>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  <strong>{displayCenterName}</strong> (código oficial GVA <code>{center.id}</code>) forma parte de los{' '}
+                  <strong>{municipalityStats.totalCenters} centros educativos de {displayMunicipality}</strong> ({municipalityStats.publicCount} públicos y {municipalityStats.concertedPrivateCount} concertados o privados).
+                </p>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
-                Preguntas frecuentes sobre {displayCenterName} (Curso 2026/2027)
-              </h2>
-            </div>
-
-            {municipalityStats && (
-              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                El centro educativo <strong>{displayCenterName}</strong> (código GVA <code>{center.id}</code>) es uno de los{' '}
+              {municipalitySlug && (
                 <Link
                   href={`/municipio/${municipalitySlug}`}
-                  className="font-bold text-primary-600 dark:text-primary-400 hover:underline"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-primary-500/10 hover:bg-primary-500/20 text-primary-700 dark:text-primary-300 border border-primary-500/20 shrink-0 transition-all"
                 >
-                  {municipalityStats.totalCenters} centros docentes de {displayMunicipality}
-                </Link>{' '}
-                ({municipalityStats.publicCount} públicos y {municipalityStats.concertedPrivateCount} concertados o privados, con {municipalityStats.fpCentersCount} centros que imparten Formación Profesional o secundaria en la localidad).
-              </p>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="glass-card p-5 rounded-xl">
-                <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
-                  ¿El centro {displayCenterName} es público, concertado o privado?
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                  <strong>{displayCenterName}</strong> es un centro de titularidad <strong>{center.type.toLowerCase()}</strong> inscrito en el Registro Oficial de Centros Docentes de la Conselleria de Educación de la Generalitat Valenciana (GVA) con el código identificativo <strong>{center.id}</strong>.
-                </p>
-              </div>
-
-              <div className="glass-card p-5 rounded-xl">
-                <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
-                  ¿Qué niveles educativos y ciclos de FP imparte {displayCenterName}?
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                  En el curso 2026/2027, el centro ofrece las etapas de{' '}
-                  <strong>{center.levels?.length ? center.levels.join(', ') : 'enseñanza reglada'}</strong>.
-                  {center.fpCycles && center.fpCycles.length > 0
-                    ? ` Cuenta además con ${center.fpCycles.length} ciclos formativos oficiales de FP (${Array.from(
-                        new Set(center.fpCycles.map((c) => c.family))
-                      ).join(', ')}).`
-                    : ''}
-                </p>
-              </div>
-
-              <div className="glass-card p-5 rounded-xl">
-                <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
-                  ¿Cuál es el teléfono, dirección y web oficial de {displayCenterName}?
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Se encuentra en <strong>{formatSchoolName(center.address)}</strong> ({center.zipCode} {displayMunicipality}, {provinceName}).
-                  {center.phone ? ` Su teléfono directo de secretaría/contacto es el ${center.phone}.` : ''}
-                  {center.url ? ` Dispone de acceso directo a su portal web oficial en la parte superior de esta ficha.` : ''}
-                </p>
-              </div>
-
-              <div className="glass-card p-5 rounded-xl">
-                <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">
-                  ¿Cómo comparar {displayCenterName} con otros centros de {displayMunicipality}?
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Puedes consultar el listado completo de{' '}
-                  <Link
-                    href={`/municipio/${municipalitySlug}`}
-                    className="font-bold text-amber-600 dark:text-amber-400 hover:underline"
-                  >
-                    colegios, institutos y centros de FP en {displayMunicipality}
-                  </Link>{' '}
-                  para comparar titularidad, distancia desde tu código postal y oferta de ciclos formativos.
-                </p>
-              </div>
+                  <span>Ver los {municipalityStats.totalCenters} centros en {displayMunicipality}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              )}
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
       </div>
     </div>

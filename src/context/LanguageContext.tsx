@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { Language, Translations, translations } from '@/lib/i18n/translations';
 
 interface LanguageContextType {
@@ -26,7 +25,6 @@ function updateHtmlLang(lang: Language) {
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('es');
-  const searchParams = useSearchParams();
 
   // Set language handler
   const setLanguage = useCallback((newLang: Language) => {
@@ -54,9 +52,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Initialization: only change language if explicitly requested via ?lang= or saved in localStorage.
-  // Never auto-switch to 'en' via navigator.language because Googlebot crawls with navigator.language = 'en-US'!
+  // Never use useSearchParams() at the top of LanguageProvider so prerendered SSR pages never bail out to CSR!
   useEffect(() => {
-    const urlLang = searchParams.get('lang') as Language;
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const urlLang = params.get('lang') as Language;
     if (urlLang && (urlLang === 'es' || urlLang === 'va' || urlLang === 'en')) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLanguageState(urlLang);
@@ -76,7 +77,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
 
     updateHtmlLang('es');
-  }, [searchParams]);
+  }, []);
 
   const value = {
     language,
