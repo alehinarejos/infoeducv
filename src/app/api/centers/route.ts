@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCenters } from '@/lib/api';
 
-export const revalidate = 86400; // 24 hours static revalidation
+export const dynamic = 'force-static';
 
 export async function GET() {
   try {

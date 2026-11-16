@@ -2,64 +2,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { Metadata } from 'next';
 import { getCenters } from '@/lib/api';
 import CentroDetail from '@/components/CentroDetail';
-import CenterJsonLd, { type MunicipalityStats } from '@/components/seo/CenterJsonLd';
-import { extractIdFromSlug, formatLocationName, formatSchoolName, getCenterSlug } from '@/lib/slug';
-import type { Center } from '@/types';
-
-export const revalidate = 86400; // Revalidate every 24 hours
-
-function buildOptimizedCenterTitle(center: Center): string {
-  const name = formatSchoolName(center.name);
-  const muni = formatLocationName(center.municipality || 'Comunitat Valenciana');
-  const hasFp = center.levels?.includes('FP') || Boolean(center.fpCycles?.length);
-  const hasBach = center.levels?.includes('Bachillerato');
-
-  let keyOffer = center.type && center.type !== 'Desconocido' ? `Colegio ${center.type}` : 'Centro Oficial';
-  if (hasFp && hasBach) {
-    keyOffer = 'FP y Bachillerato';
-  } else if (hasFp) {
-    const cycleCount = center.fpCycles?.length || 0;
-    keyOffer = cycleCount > 0 ? `${cycleCount} Ciclos FP` : 'Formación Profesional';
-  } else if (hasBach) {
-    keyOffer = 'ESO y Bachillerato';
-  } else if (center.levels && center.levels.length > 0) {
-    keyOffer = center.levels.slice(0, 2).join(' y ');
-  }
-
-  // Evitamos repetir el municipio si ya está incluido al final del nombre del centro (ej: "CEIP Cofrentes")
-  const nameIncludesMuni = name.toLowerCase().includes(muni.toLowerCase());
-  const locationPart = nameIncludesMuni ? `(${muni})` : `(${muni})`;
-
-  const fullWithWebCandidate = `${name} ${locationPart} | ${keyOffer} y Web Oficial - InfoEdu CV`;
-  if (fullWithWebCandidate.length <= 68) return fullWithWebCandidate;
-
-  const fullCandidate = `${name} ${locationPart}: ${keyOffer} - InfoEdu CV`;
-  if (fullCandidate.length <= 65) return fullCandidate;
-
-  const mediumCandidate = `${name} ${locationPart} - InfoEdu CV`;
-  if (mediumCandidate.length <= 65) return mediumCandidate;
-
-  return `${name.slice(0, 46).trim()} - InfoEdu CV`;
-}
-
-function buildOptimizedCenterDescription(center: Center, provinceClean: string): string {
-  const name = formatSchoolName(center.name);
-  const muni = formatLocationName(center.municipality || provinceClean);
-  const typeLabel =
-    center.type && center.type !== 'Desconocido' ? `Centro ${center.type.toLowerCase()}` : 'Centro educativo';
-  const levelsStr =
-    center.levels && center.levels.length > 0 ? ` Imparte ${center.levels.join(', ')}.` : '';
-  const fpCountStr =
-    center.fpCycles && center.fpCycles.length > 0
-      ? ` ${center.fpCycles.length} ciclos de FP (2026/2027).`
-      : '';
-  const phoneStr = center.phone ? ` Tel: ${center.phone}.` : '';
-
-  const rawDesc = `${typeLabel} ${name} en ${muni} (${provinceClean}, Cód. ${center.id}).${levelsStr}${fpCountStr}${phoneStr} Dirección, mapa y web oficial GVA.`;
-
-  if (rawDesc.length <= 158) return rawDesc;
-  return `${rawDesc.slice(0, 155).trim()}...`;
-}
+import { extractIdFromSlug, getCenterSlug } from '@/lib/slug';
 
 export async function generateStaticParams() {
   const centers = await getCenters();
@@ -76,17 +19,36 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   if (!center) {
     return {
-      title: 'Centro no encontrado - InfoEdu CV',
+      title: 'Centro no encontrado | InfoEdu CV',
       robots: { index: false, follow: false },
     };
   }
 
   const canonicalSlug = getCenterSlug(center);
-  const formattedName = formatSchoolName(center.name);
-  const formattedMuni = formatLocationName(center.municipality || 'Comunitat Valenciana');
-  const provinceClean = formatLocationName(center.province || 'Comunitat Valenciana');
-  const title = buildOptimizedCenterTitle(center);
-  const description = buildOptimizedCenterDescription(center, provinceClean);
+  const provinceClean = center.province.split('/')[0];
+
+  // High-CTR search intent keywords
+  const hasFp = center.levels?.includes('FP') || (center.fpCycles && center.fpCycles.length > 0);
+  const hasBach = center.levels?.includes('Bachillerato');
+  
+  let keyOffer = '';
+  if (hasFp && hasBach) {
+    keyOffer = 'FP y Bachillerato';
+  } else if (hasFp) {
+    const cycleCount = center.fpCycles?.length || 0;
+    keyOffer = cycleCount > 0 ? `Ciclos FP (${cycleCount})` : 'Formación Profesional';
+  } else if (hasBach) {
+    keyOffer = 'Bachillerato y ESO';
+  } else if (center.levels && center.levels.length > 0) {
+    keyOffer = center.levels.join(', ');
+  } else {
+    keyOffer = center.type;
+  }
+
+  const title = `${center.name} (${center.municipality}) | ${keyOffer} y Web Oficial | InfoEdu CV`;
+  
+  const fpCountStr = center.fpCycles && center.fpCycles.length > 0 ? ` con ${center.fpCycles.length} ciclos formativos oficiales` : '';
+  const description = `Toda la información oficial de ${center.name} en ${center.municipality} (${provinceClean}): oferta formativa (${center.levels?.join(', ')})${fpCountStr}, dirección, teléfono y enlace directo a su web oficial sin intermediarios.`;
 
   return {
     title: {
@@ -94,38 +56,23 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     },
     description: description,
     keywords: [
-      formattedName,
       center.name,
-      `colegio ${formattedName}`,
-      `instituto ${formattedName}`,
-      `fp ${formattedName}`,
-      `${formattedName} ${formattedMuni}`,
-      `teléfono ${formattedName}`,
-      `código centro ${center.id}`,
-      `colegios en ${formattedMuni}`,
-      `institutos en ${formattedMuni}`,
-      `fp en ${formattedMuni}`,
+      `colegio ${center.name}`,
+      `instituto ${center.name}`,
+      `fp ${center.name}`,
+      `${center.name} ${center.municipality}`,
+      `colegios en ${center.municipality}`,
+      `institutos en ${center.municipality}`,
+      `fp en ${center.municipality}`,
+      `info edu cv ${center.name}`,
       center.type,
       "educación GVA",
       provinceClean,
       ...(center.levels || [])
     ],
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
     openGraph: {
-      title: `${formattedName} (${formattedMuni}) - Oferta Educativa y Contacto`,
+      title: `${center.name} (${center.municipality}) - Información y Oferta Educativa`,
       description: description,
-      url: `/centro/${canonicalSlug}`,
-      siteName: 'InfoEdu CV',
       type: "website",
       locale: "es_ES",
       images: [
@@ -133,7 +80,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
           url: '/icon-512.png',
           width: 512,
           height: 512,
-          alt: `${formattedName} en ${formattedMuni} - InfoEdu CV`,
+          alt: `${center.name} - InfoEdu CV`,
         }
       ],
     },
@@ -166,41 +113,18 @@ export default async function CentroPage({ params }: { params: Promise<{ id: str
     permanentRedirect(`/centro/${canonicalSlug}`);
   }
 
-  // Compute municipality context statistics on the server to enrich programmatic content
-  const sameMuniCenters = centers.filter((c) => c.municipality === center.municipality);
-  const publicInMuni = sameMuniCenters.filter((c) => c.type === 'Público').length;
-  const fpInMuni = sameMuniCenters.filter(
-    (c) => c.levels?.includes('FP') || (c.fpCycles && c.fpCycles.length > 0)
-  ).length;
-
-  const municipalityStats: MunicipalityStats = {
-    totalCenters: sameMuniCenters.length,
-    publicCount: publicInMuni,
-    concertedPrivateCount: sameMuniCenters.length - publicInMuni,
-    fpCentersCount: fpInMuni,
-  };
-
   // Find related centers in the same municipality (excluding current center) for internal linking
-  let relatedCenters = sameMuniCenters
-    .filter((c) => c.id !== center.id)
-    .slice(0, 8);
+  let relatedCenters = centers
+    .filter((c) => c.municipality === center.municipality && c.id !== center.id)
+    .slice(0, 4);
 
-  // If fewer than 8 in the municipality, supplement with centers from the same province
-  if (relatedCenters.length < 8) {
+  // If fewer than 4 in the municipality, supplement with centers from the same province
+  if (relatedCenters.length < 4) {
     const moreFromProvince = centers
       .filter((c) => c.province === center.province && c.id !== center.id && !relatedCenters.some(rc => rc.id === c.id))
-      .slice(0, 8 - relatedCenters.length);
+      .slice(0, 4 - relatedCenters.length);
     relatedCenters = [...relatedCenters, ...moreFromProvince];
   }
 
-  return (
-    <>
-      <CenterJsonLd center={center} municipalityStats={municipalityStats} />
-      <CentroDetail
-        center={center}
-        relatedCenters={relatedCenters}
-        municipalityStats={municipalityStats}
-      />
-    </>
-  );
+  return <CentroDetail center={center} relatedCenters={relatedCenters} />;
 }
